@@ -1,0 +1,30 @@
+// $Id: CHANGELOG.txt,v 1.1.2.3 2009/09/14 22:58:57 wojtha Exp $
+
+NodeSymlinks 6.x-1.0-beta1, 2009-09-14
+------------------------------------
+Added by wojtha: Admin settings form for the breadcrumbs behavior on the Nodesymlinks pages
+Added by wojtha: Nodesymlinks on the node menu settings form can be added or deleted using AHAH!
+
+NodeSymlinks 6.x-1.0-alpha2, 2009-09-12
+------------------------------------
+NOTE: Merge with Gordon's Luk fork (nodemultiparent-6.X-1.3-dev)
+Added by Gordon Luk, wojtha: Link storage table for backup purpose
+- Links are now saved in its own table when module is disabled and enabled again all links are restored.
+Added by Gordon Luk, wojtha: Changes in UI
+Added by Gordon Luk, wojtha: Admin page with all NodeSymlinks in one table (admin/settings/nodesymlinks)
+Added by wojtha: License file
+
+NodeSymlinks 6.x-1.0-alpha1, 2009-09-11
+------------------------------------
+Fixed #479520 by Fedor.Za: Wrong SQL syntax
+Fixed #479532 by Fedor.Za, wojtha: "Delete" button interefered with Node's "Delete" button -> renamed to "Delete Symlinks"
+Fixed by wojtha: Check if module Path exists before calling path_set_alias()
+Added #522378 by zoo33: Make view/edit links for original node themeable
+
+NodeSymlinks 6.x-1.x-dev, 2009-05-30
+------------------------------------
+Fixed #371463 by pokurek: changed path to symlinks menu items in form during nodeapi update and insert
+
+NodeSymlinks 6.x-1.x-dev, 2009-01-19
+------------------------------------
+Initial commit

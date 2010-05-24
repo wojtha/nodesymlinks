@@ -1,0 +1,5 @@
+; $Id: nodesymlinks.info,v 1.2.2.1 2009/09/12 01:47:51 wojtha Exp $
+name = NodeSymlinks
+description = "Allows a node to appear in multiple places in the menu hierarchy, while preventing duplicate indexing through META ROBOTS tags."
+core = 6.x
+

@@ -1,0 +1,36 @@
+--- D:/desk/Drupal-modules/submenutree-6.x-1.3/submenutree.v1.3.module	Fri Jul 04 08:35:25 2008
++++ D:/desk/Drupal-modules/submenutree-6.x-1.3/submenutree.module	Sun Jan 18 16:47:23 2009
+@@ -346,7 +346,22 @@
+       if ($v['link']['hidden'] == false && $v['link']['page_callback'] == 'node_page_view') {
+         $nid = substr($v['link']['href'], 5);
+         $child = node_load(array('nid' => $nid));
+-        $items[] = array('node' => $child, 'weight' => $v['link']['weight'], 'title' => check_plain($v['link']['title']));
++        $items[] = array(
++          'node' => $child,
++          'weight' => $v['link']['weight'],
++          'title' => check_plain($v['link']['title']),
++          'path' => $v['link']['href'],
++        );
++      }
++      // launch submenutree hook
++      elseif ($v['link']['hidden'] == false) {
++        foreach (module_implements('submenutree') as $module) {
++          $function = $module . '_submenutree';
++          $item = $function($v);
++          if (!empty($item)) {
++            $items[] = $item;
++          }
++        }
+       }
+     }
+     _submenutree_sort_items($items);
+@@ -504,7 +518,8 @@
+ function theme_submenu_tree_titles($items, $title = null) {
+   $list = array();
+   foreach ($items as $item) {
+-    $list[] = l($item['node']->title, 'node/' . $item['node']->nid);
++    //$list[] = l($item['node']->title, 'node/' . $item['node']->nid);
++    $list[] = l($item['node']->title, $item['path']);
+   }
+   return theme('item_list', $list, $title);
+ }
