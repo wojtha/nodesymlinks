@@ -1,5 +1,5 @@
 <?php
-// $Id: nodesymlinks.module,v 1.2.2.5 2009/09/14 22:58:57 wojtha Exp $
+// $Id$
 
 /**
  * @file
@@ -39,7 +39,7 @@ function nodesymlinks_menu() {
     'title callback' => 'nodesymlinks_menu_title',
     'title arguments' => array(1),
     'access callback' => 'node_access',
-    'access arguments' => array('view',1),
+    'access arguments' => array('view', 1),
     'type' => MENU_CALLBACK,
   );
 
@@ -96,11 +96,11 @@ function nodesymlinks_page($node, $mid) {
   }
 
   $output = '';
-  if (node_access('update',$node)) {
+  if (node_access('update', $node)) {
     $output .= theme('nodesymlinks_edit_links', $node->nid);
   }
   // view as a full page
-  $output .= node_view($node,FALSE,TRUE,FALSE);
+  $output .= node_view($node, FALSE, TRUE, FALSE);
 
   // create breadcrumb based on the menu path
   // NOTE: set breadcrumb *after* node_view() prevents our breadcrumbs to be changed in some other module
@@ -146,13 +146,13 @@ function nodesymlinks_admin() {
       // Weight
       $row[] = $item['weight'];
       // Edit link
-      $row[] = l(t('Edit'), 'node/' . $link_parts[1].'/edit');
+      $row[] = l(t('Edit'), 'node/' . $link_parts[1] . '/edit');
 
       $rows[] = $row;
     }
   }
   else {
-    $output .= '<p>' .t('No node duplicates found.'). '</p>';
+    $output .= '<p>' . t('No node duplicates found.') . '</p>';
   }
   $output .= theme('table', $header, $rows);
 
@@ -199,7 +199,7 @@ function nodesymlinks_get_breadcrumbs() {
   $menu = db_result(db_query("SELECT menu_name FROM {menu_links} WHERE link_path = '%s' AND module = 'nodesymlinks'", $item['href']));
   $tree = menu_tree_page_data($menu);
   $crumbs = array();
-  if (variable_get('nodesymlinks_crumbs_include_home',1)) {
+  if (variable_get('nodesymlinks_crumbs_include_home', 1)) {
     $crumbs[] = l(t('Home'), '<front>');
   }
   _nodesymlinks_recurse_crumbs($tree, $item, $crumbs);
@@ -216,11 +216,11 @@ function nodesymlinks_get_breadcrumbs() {
 function _nodesymlinks_recurse_crumbs($tree, $item, &$crumbs, $above = array()) {
   foreach ($tree as $menu_item) {
     if ($menu_item['link']['link_path'] == $item['href']) {
-      foreach($above as $trail_item) {
+      foreach ($above as $trail_item) {
         $crumbs[] = l($trail_item['link']['link_title'], $trail_item['link']['link_path']);
       }
       // Last crumb can be: parent, current_plain ,current_link
-      $last_crumb_type = variable_get('nodesymlinks_crumbs_lastcrumb','parent');
+      $last_crumb_type = variable_get('nodesymlinks_crumbs_lastcrumb', 'parent');
       if ($last_crumb_type == 'current_plain') {
         $crumbs[] = $menu_item['link']['link_title'];
       }
@@ -267,7 +267,7 @@ function _nodesymlinks_form_field($item = NULL) {
     $item_form['#tree'] = TRUE;
 
     // TODO simplify this - whole array can be stored in Value type
-    foreach (array('mlid', 'module', 'hidden', 'has_children', 'customized', 'options', 'expanded','parent_depth_limit') as $key) {
+    foreach (array('mlid', 'module', 'hidden', 'has_children', 'customized', 'options', 'expanded', 'parent_depth_limit') as $key) {
       $item_form[$key] = array('#type' => 'value', '#value' => $item[$key]);
     }
 
@@ -275,7 +275,7 @@ function _nodesymlinks_form_field($item = NULL) {
     $options = menu_parent_options(menu_get_menus(), $item);
     // Generate all tree $item['mlid'] == 0
     //$options = menu_parent_options(menu_get_menus(), array('mlid' => 0));
-    $default = !empty($item['parents']) ? $item['parents'] : $item['menu_name'] .':'. $item['plid'];
+    $default = !empty($item['parents']) ? $item['parents'] : $item['menu_name'] . ':' . $item['plid'];
     if (!isset($options[$default])) {
       $default = array('primary-links:0');
     }
@@ -365,11 +365,11 @@ function nodesymlinks_form_alter(&$form, $form_state, $form_id) {
     }
 
     $form['menu']['nodesymlinks']['#description'] = t('This module allows you to show this node\'s content within multiple places in your site.<br />');
-    $form['menu']['nodesymlinks']['#description'] .= '<b>' . t('Parent item') .':</b> '. t('The place where this page\'s content will appear. It will use the selected parent\'s breadcrumbs and sidebar. Items in the hierarchy deeper than ' . (MENU_MAX_DEPTH - 1) . ' levels may not appear.', array('!maxdepth' => MENU_MAX_DEPTH));
-    $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Menu link title').':</b> '. t('The link text corresponding to this item that should appear in the menu.');
-    $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Weight').':</b> '. t('Optional. In the menu, a higher weight number will sink down and a lower weight will be positioned closer to the top.');
-    $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Delete').':</b> '. t('To delete nodesymlinks, first check the "Delete" checkbox in the desired rows, then click "Delete Location(s)".');
-    $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Saving').': '. t('When you are done editing, you must click "Save" at the very bottom of the page to save your changes.') . '</b>';
+    $form['menu']['nodesymlinks']['#description'] .= '<b>' . t('Parent item') . ':</b> ' . t('The place where this page\'s content will appear. It will use the selected parent\'s breadcrumbs and sidebar. Items in the hierarchy deeper than ' . (MENU_MAX_DEPTH - 1) . ' levels may not appear.', array('!maxdepth' => MENU_MAX_DEPTH));
+    $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Menu link title') . ':</b> ' . t('The link text corresponding to this item that should appear in the menu.');
+    $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Weight') . ':</b> ' . t('Optional. In the menu, a higher weight number will sink down and a lower weight will be positioned closer to the top.');
+    $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Delete') . ':</b> ' . t('To delete nodesymlinks, first check the "Delete" checkbox in the desired rows, then click "Delete Location(s)".');
+    $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Saving') . ': ' . t('When you are done editing, you must click "Save" at the very bottom of the page to save your changes.') . '</b>';
 
     // We add a div around the new content to tell AHAH to let this fade in.
     //$form['nodesymlinks']['items']['#prefix'] = '<div id="nodesymlinks-items-ahah">';
@@ -495,7 +495,7 @@ function nodesymlinks_ahah_handler() {
  * @param node $node
  * @return string
  */
-function nodesymlinks_create_item_path(&$item,&$node) {
+function nodesymlinks_create_item_path(&$item, &$node) {
   return 'node/'. $node->nid . '/mid/' . $item['mlid'];
 }
 
@@ -505,7 +505,7 @@ function nodesymlinks_create_item_path(&$item,&$node) {
  * @param item $item
  * @param node $node
  */
-function nodesymlinks_item_process(&$item,&$node) {
+function nodesymlinks_item_process(&$item, &$node) {
   $item_defaults = array(
     'link_title' => '',
     'mlid' => 0,
@@ -526,7 +526,7 @@ function nodesymlinks_item_process(&$item,&$node) {
   // it can't be used to marking
   $item['is_new'] = ($item['mlid'] == 0) ? TRUE : FALSE;
   if (!empty($item['parents'])) {
-    list($item['menu_name'],$item['plid']) = explode(':',$item['parents']);
+    list($item['menu_name'], $item['plid']) = explode(':', $item['parents']);
   }
   if (!$item['customized']) {
     $item['options']['attributes']['title'] = trim($node->title);
@@ -535,7 +535,7 @@ function nodesymlinks_item_process(&$item,&$node) {
   // @TODO: maybe we can remove this line, if we validate not empty title field and fill the field with the default value
   $item['link_title'] = trim($item['link_title']) ? trim($item['link_title']) : $node->title;
 
-  $item['link_path'] = nodesymlinks_create_item_path($item,$node);
+  $item['link_path'] = nodesymlinks_create_item_path($item, $node);
 }
 
 /**
@@ -546,7 +546,7 @@ function nodesymlinks_item_process(&$item,&$node) {
  * @param node $node
  * @return bool
  */
-function nodesymlinks_item_save(&$item,&$node) {
+function nodesymlinks_item_save(&$item, &$node) {
   /**
    * If this function is updated, please update its counterpart in
    * nodesymlinks.install, which exists to restore deleted menu_links during
@@ -573,7 +573,8 @@ function nodesymlinks_item_save(&$item,&$node) {
       db_query("INSERT INTO {nodesymlinks_link_storage} (
         mlid, nid, item_data) VALUES (
           %d, %d, '%s')", $item['mlid'], $node->nid, serialize($item));
-    } else {
+    }
+    else {
       // Update in permanent store
       db_query("UPDATE {nodesymlinks_link_storage} SET
         nid = %d, item_data = '%s' WHERE
@@ -642,20 +643,21 @@ function nodesymlinks_nodeapi(&$node, $op) {
         // Save all menulinks from form (insert/update is handled by Menu API)
         foreach ($items as &$item) {
           // load defaults and process item before save
-          nodesymlinks_item_process($item,$node);
+          nodesymlinks_item_process($item, $node);
           if (!$item['is_new']) {
             $update_items[] = $item['mlid'];
           }
-          if (nodesymlinks_item_save($item,$node)) {
+          if (nodesymlinks_item_save($item, $node)) {
             ++$count_saved;
-          } else {
-            drupal_set_message(t('There was an error saving the menu link.'), 'error');
+          }
+          else {
+            drupal_set_message(t('There was an error when saving the menu link.'), 'error');
           }
         }
 
         // Detect which items exists in database, but it was not saved.
         // Delete them.
-        $items_to_delete = array_diff(array_keys($db_items),$update_items);
+        $items_to_delete = array_diff(array_keys($db_items), $update_items);
         while ($mlid = array_pop($items_to_delete)) {
           nodesymlinks_item_delete($db_items[$mlid]);
           ++$count_deleted;
@@ -665,7 +667,8 @@ function nodesymlinks_nodeapi(&$node, $op) {
           $message = t('Processed Duplicate Location(s): @saved saved', array('@saved' => $count_saved));
           if ($count_deleted) {
             $message .= t(', @deleted deleted.', array('@deleted' => $count_deleted));
-          } else {
+          }
+          else {
             $message .= '.';
           }
           drupal_set_message( $message );
@@ -739,8 +742,8 @@ function theme_nodesymlinks_form_items(&$form) {
     $row[] = drupal_render($form[$delta]['weight']);
     $rows[] = $row;
   }
-  $header = array('#',t('Delete'),t('Parent item'),t('Link title'),t('Weight'));
-  $output .= theme_table($header,$rows);
+  $header = array('#', t('Delete'), t('Parent item'), t('Link title'), t('Weight'));
+  $output .= theme_table($header, $rows);
   $output .= drupal_render($form);
   $output .=  '</div>';
   return $output;
@@ -757,6 +760,6 @@ function theme_nodesymlinks_form_items(&$form) {
 function theme_nodesymlinks_edit_links($nid) {
   $text = t('Original node: !view | !edit', array(
     '!view' => l(t('View'), 'node/' . $nid),
-    '!edit' => l(t('Edit'), 'node/' . $nid.'/edit')));
+    '!edit' => l(t('Edit'), 'node/' . $nid . '/edit')));
   return '<div class="nodesymlinks_edit_links">' . $text . "</div>\n";
 }

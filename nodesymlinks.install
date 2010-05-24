@@ -1,4 +1,5 @@
 <?php
+// $Id$
 
 /**
  * @file
@@ -94,7 +95,7 @@ function _nodesymlinks_restore_menu_link($record) {
 
     // @WARNING:
     // The items we restore must be re-entered into the menu_link system.
-    // I do not think it will cause problems, so I re-use the old MLIDs 
+    // I do not think it will cause problems, so I re-use the old MLIDs
     // which should have been originally granted in the serial datatype.
     // BUT, if menu_links are suddenly getting overwritten, this could very
     // well be the culprit.
