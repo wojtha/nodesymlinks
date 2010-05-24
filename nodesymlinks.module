@@ -563,7 +563,7 @@ function nodesymlinks_item_save(&$item, &$node) {
       // make alias
       $node_alias = ($node->path == 'node/' . $node->nid) ? NULL : $node->path;
       if ($node_alias) {
-        path_set_alias($item['link_path'], $node_alias .'_'. $item['mlid']);
+        path_set_alias($item['link_path'], $node_alias . '_' . $item['mlid']);
       }
     }
     // Because menu_links is wiped out on module disable (not Uninstall),
@@ -728,7 +728,7 @@ function nodesymlinks_theme() {
  * @param element $form
  * @return HTML
  */
-function theme_nodesymlinks_form_items(&$form) {
+function theme_nodesymlinks_form_items($form) {
   $output = '';
   $output .= '<div id="nodesymlinks-items-ahah">';
   $items = element_children($form);
