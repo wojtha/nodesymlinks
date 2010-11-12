@@ -292,8 +292,8 @@ function _nodesymlinks_form_field($item = NULL) {
 
     $item_form['link_title'] = array('#type' => 'textfield',
       //'#title' => t('Menu link title'),
-      '#default_value' => check_plain($item['link_title']),
-      '#description' => '',
+      '#default_value' => $item['link_title'], // check_plain() is unnecessary here
+      '#description' => '',                    // and also it translates titles to HTML entities
       '#required' => FALSE,
     );
 
