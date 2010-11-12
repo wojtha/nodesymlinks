@@ -66,7 +66,7 @@ function nodesymlinks_menu() {
 
   $items['nodesymlinks/ahah'] = array(
     'page callback' => 'nodesymlinks_ahah_handler',
-    'access arguments' => array('administer menu'),
+    'access arguments' => array('administer nodesymlinks'),
     'type' => MENU_CALLBACK,
   );
 
@@ -78,6 +78,13 @@ function nodesymlinks_menu() {
  */
 function nodesymlinks_menu_title($node) {
   return $node->title;
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function nodesymlinks_perm() {
+  return array('administer nodesymlinks');
 }
 
 /**
@@ -333,7 +340,7 @@ function nodesymlinks_form_alter(&$form, $form_state, $form_id) {
     $form['menu']['nodesymlinks'] = array(
       '#type' => 'fieldset',
       '#title' => t('Show in More Locations'),
-      '#access' => user_access('administer menu'),
+      '#access' => user_access('administer menu') || user_access('administer nodesymlinks'),
       '#collapsible' => TRUE,
       '#collapsed' => $collapsed,
       '#tree' => TRUE,
@@ -559,13 +566,6 @@ function nodesymlinks_item_save(&$item, &$node) {
       menu_link_save($item);
     }
 
-    if (module_exists('path')) {
-      // make alias
-      $node_alias = ($node->path == 'node/' . $node->nid) ? NULL : $node->path;
-      if ($node_alias) {
-        path_set_alias($item['link_path'], $node_alias . '_' . $item['mlid']);
-      }
-    }
     // Because menu_links is wiped out on module disable (not Uninstall),
     // we need to store this for later re-use if we detect a module re-enable.
     if ($item['is_new']) {
@@ -581,9 +581,129 @@ function nodesymlinks_item_save(&$item, &$node) {
         mlid = %d", $node->nid, serialize($item), $item['mlid']);
     }
 
+    if (module_exists('path')) {
+      // Integrate with pathauto.
+      if (module_exists('pathauto')) {
+        $module = 'nodesymlinks';
+        $op = 'return';
+        $source = 'node/'. $node->nid . '/mid/' . $item['mlid'];
+        $data = array('node' => $node);
+        $placeholders = pathauto_get_placeholders('node', $node);
+        $entity_id = $node->nid;
+        $type = 'node';
+        $language = '';
+        // Get Pathauto version. @todo: find a way to successfully get version if downloaded via CVS.
+        $pathauto = drupal_parse_info_file(drupal_get_path('module', 'pathauto') .'/pathauto.info');
+        if ($pathauto['version']) {
+          // Will return version formatted like: 6.x-2.x-dev.
+          $parts = explode('-', $pathauto['version']);
+          // Get '1' or '2'.
+          $version = $parts[1][0];
+        }
+        if ($version == 1) {
+          // For pathauto 6.x-1.x.
+          $pathauto_alias = pathauto_create_alias($module, $op, $placeholders, $source, $entity_id, $type = NULL, $language = '');
+        }
+        else {
+          // For 6.x-2.x (tested with 6.x-2.0-alpha2).
+          $pathauto_alias = pathauto_create_alias($module, $op, $source, $data, $entity_id, $type = NULL, $language = '');
+        }
+        path_set_alias($item['link_path'], $pathauto_alias);
+      }
+      else {
+        // make alias
+        $node_alias = ($node->path == 'node/' . $node->nid) ? NULL : $node->path;
+        if ($node_alias) {
+          path_set_alias($item['link_path'], $node_alias . '_' . $item['mlid']);
+        }
+      }
+    }
+
     return TRUE;
   }
   return FALSE;
+}
+
+/**
+ * Implementation of hook_pathauto().
+ */
+function nodesymlinks_pathauto($op) {
+  switch ($op) {
+    case 'settings':
+      $settings = array();
+      $settings['module'] = 'nodesymlinks';
+      $settings['token_type'] = 'nodesymlinks';
+      $settings['groupheader'] = t('Nodesymlinks paths');
+      $settings['patterndescr'] = t('Default path pattern (applies to all node types with blank patterns below)');
+      $settings['patterndefault'] = '[nodesymlinks-menupath-raw]';
+      #$settings['batch_update_callback'] = 'node_pathauto_bulk_update_batch_process';
+      #$settings['batch_file'] = drupal_get_path('module', 'pathauto') . '/pathauto.pathauto.inc';
+      return (object) $settings;
+    default:
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_token_list()
+ */
+function nodesymlinks_token_list($type = 'all') {
+  if ($type == 'nodesymlinks' || $type == 'all') {
+    $tokens['nodesymlinks']['nodesymlinks-menupath-raw'] = t("The unfiltered menu path (as reflected in the breadcrumb), not including Home or [menu]. Separated by /.");
+  }
+  return $tokens;
+}
+
+/**
+ * Implementation of hook_token_values().
+ *
+ * @todo: Currently this only works with one nodesymlink (the last one). To do that
+ *   we would need to load a nodesymlink object as rather than $node, and evaluate 
+ *   the token in that context.
+ */
+function nodesymlinks_token_values($type, $object = NULL, $options = array()) {
+  $values = array();
+  switch ($type) {
+    case 'node':
+      // Get all nodesymlinks for the node.
+      $node = $object;
+      $items = count($node->menu['nodesymlinks']['items']) ? $node->menu['nodesymlinks']['items'] : array();
+      
+      // Loop through each nodesymlink.
+      foreach ($items as &$item) {
+        // Get parent plid. Formatted like 'primary-links:228'.
+        $parents = $item['parents'];
+        $pieces = explode(':', $parents);
+        $plid = $pieces[1];
+        // Create menupath array.
+        $trail_raw = nodesymlinks_recurse_parents($plid);
+        // Add current link title to array.
+        $trail_raw[] = $item['link_title'];
+      }
+
+      if (is_array($trail_raw)) {
+        $values['nodesymlinks-menupath-raw'] = implode('/', $trail_raw);
+      }
+      else {
+        $values['nodesymlinks-menupath-raw'] = '';
+      }
+      break;
+  }
+  return $values;
+}
+
+/**
+ * Helper function for nodesymlinks_token_values().
+ */
+function nodesymlinks_recurse_parents($plid) {
+  $db_results = db_query("SELECT plid, link_title FROM {menu_links} WHERE mlid = %d", $plid);
+  while ($result = db_fetch_array($db_results)) {
+    $trail[] = $result['link_title'];
+    if ($result['plid'] != 0) {
+      $trail[] = nodesymlinks_recurse_parents($plid);
+    }
+  }
+  return $trail;
 }
 
 /**
@@ -687,6 +807,7 @@ function nodesymlinks_nodeapi(&$node, $op) {
       db_query('DELETE FROM {nodesymlinks_link_storage} WHERE nid=%d', $node->nid);
       break;
     case 'prepare':
+    case 'presave':
       if (empty($node->nodesymlinks)) {
         // Prepare the node for the edit form so that $node->menu always exists.
         $items = array();
