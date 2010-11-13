@@ -9,28 +9,29 @@
  * @param string $op
  */
 function nodesymlinks_pathauto_create_alias($item, $node, $op = 'return') {
+  // make sure that pathauto_create_alias is available
+  module_load_include('inc', 'pathauto');
   $pathauto_alias = '';
   $source = 'node/' . $node->nid . '/mid/' . $item['mlid'];
   $entity_id = $node->nid;
   $language = $node->language;
   $type = $node->type;
 
+  // generate placeholders/tokens for the current nodesymlink and node
+  $data_object = $item;
+  $data_object['node'] = $node;
+  $node_placeholders = pathauto_get_placeholders('node', $node);
+  $placeholders = pathauto_get_placeholders('nodesymlinks', $data_object);
+  $placeholders['values'] += $node_placeholders['values'];
+  nodesymlinks_reconstruct_tokens($placeholders);
+  $data =& $placeholders;
+
   if (nodesymlinks_pathauto_version() == 1) {
     // For pathauto 6.x-1.x.
-    $data_object = $item;
-    $data_object['node'] = $node;
-    $node_placeholders = pathauto_get_placeholders('node', $node);
-    $placeholders = pathauto_get_placeholders('nodesymlinks', $data_object);
-    $placeholders['values'] += $node_placeholders['values'];
-    nodesymlinks_reconstruct_tokens($placeholders);
     $pathauto_alias = pathauto_create_alias('nodesymlinks', $op, $placeholders, $source, $entity_id, $type, $language);
   }
   else {
-    // For 6.x-2.x (tested with 6.x-2.0-alpha2).
-    $data = array(
-      'node' => $node,
-      'nodesymlinks' => $item
-    );
+    // For 6.x-2.x (tested with 6.x-2.0-alpha3).
     $pathauto_alias = pathauto_create_alias('nodesymlinks', $op, $source, $data, $entity_id, $type, $language);
   }
 
