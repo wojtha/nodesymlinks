@@ -48,11 +48,11 @@ function _nodesymlinks_nodeapi_insert_update(&$node, $op) {
   foreach ($items as &$item) {
     // load defaults and process item before save
     nodesymlinks_item_process($item, $node);
-    if (!$item['is_new']) {
+    if (! $item['is_new']) {
       $update_items[] = $item['mlid'];
     }
     if (nodesymlinks_item_save($item, $node)) {
-      ++$count_saved;
+      ++ $count_saved;
     }
     else {
       drupal_set_message(t('There was an error when saving the menu link.'), 'error');
@@ -68,8 +68,8 @@ function _nodesymlinks_nodeapi_insert_update(&$node, $op) {
   }
 
   drupal_set_message(
-          format_plural($count_saved, 'Saved 1 nodesymlink.', 'Saved @count nodesymlinks.') . ' ' .
-          format_plural($count_deleted, 'Deleted 1 nodesymlink.', 'Deleted @count nodesymlinks.')
+      format_plural($count_saved, 'Saved 1 nodesymlink.', 'Saved @count nodesymlinks.') . ' ' .
+      format_plural($count_deleted, 'Deleted 1 nodesymlink.', 'Deleted @count nodesymlinks.')
   );
 }
 
@@ -110,6 +110,7 @@ function _nodesymlinks_nodeapi_prepare_presave(&$node, $op) {
   }
   // Set default values.
   $node->nodesymlinks['items'] = $items;
+
   //array('link_title' => '', 'mlid' => 0, 'plid' => 0, 'menu_name' => $menu_name, 'weight' => 0, 'options' => array(), 'module' => 'menu', 'expanded' => 0, 'hidden' => 0, 'has_children' => 0, 'customized' => 0);
 }
 
@@ -126,17 +127,17 @@ function _nodesymlinks_form_field($item = NULL) {
   if (is_null($item) || isset($item['new_item'])) {
     // load default properties
     $item = array(
-        'link_title' => isset($item['link_title']) ? $item['link_title'] : '',
-        'mlid' => 0,
-        'plid' => 0,
-        'menu_name' => 'navigation',
-        'weight' => 0,
-        'options' => array(),
-        'module' => 'nodesymlinks',
-        'expanded' => 0,
-        'hidden' => 0,
-        'has_children' => 0,
-        'customized' => 0,
+      'link_title' => isset($item['link_title']) ? $item['link_title'] : '',
+      'mlid' => 0,
+      'plid' => 0,
+      'menu_name' => 'navigation',
+      'weight' => 0,
+      'options' => array(),
+      'module' => 'nodesymlinks',
+      'expanded' => 0,
+      'hidden' => 0,
+      'has_children' => 0,
+      'customized' => 0
     );
   }
 
@@ -144,47 +145,64 @@ function _nodesymlinks_form_field($item = NULL) {
   $item_form['#tree'] = TRUE;
 
   // TODO simplify this - whole array can be stored in Value type
-  foreach (array('mlid', 'module', 'hidden', 'has_children', 'customized', 'options', 'expanded', 'parent_depth_limit') as $key) {
-    $item_form[$key] = array('#type' => 'value', '#value' => $item[$key]);
+  foreach (array(
+    'mlid',
+    'module',
+    'hidden',
+    'has_children',
+    'customized',
+    'options',
+    'expanded',
+    'parent_depth_limit'
+  ) as $key) {
+    $item_form[$key] = array(
+      '#type' => 'value',
+      '#value' => $item[$key]
+    );
   }
 
   // Generate a list of possible parents (not including this item or descendants).
   $options = menu_parent_options(menu_get_menus(), $item);
   // Generate all tree $item['mlid'] == 0
   //$options = menu_parent_options(menu_get_menus(), array('mlid' => 0));
-  $default = !empty($item['parents']) ? $item['parents'] : $item['menu_name'] . ':' . $item['plid'];
-  if (!isset($options[$default])) {
-    $default = array('primary-links:0');
+  $default = ! empty($item['parents']) ? $item['parents'] : $item['menu_name'] . ':' . $item['plid'];
+  if (! isset($options[$default])) {
+    $default = array(
+      'primary-links:0'
+    );
   }
 
   $item_form['parents'] = array(
-      '#type' => 'select',
-      //'#title' => t('Parent items'),
-      '#default_value' => $default,
-      '#options' => $options,
-      '#multiple' => FALSE,
-      '#description' => '',
-      '#attributes' => array('class' => 'menu-title-select'),
+    '#type' => 'select',
+    //'#title' => t('Parent items'),
+    '#default_value' => $default,
+    '#options' => $options,
+    '#multiple' => FALSE,
+    '#description' => '',
+    '#attributes' => array(
+      'class' => 'menu-title-select'
+    )
   );
 
-  $item_form['link_title'] = array('#type' => 'textfield',
-      //'#title' => t('Menu link title'),
-      '#default_value' => $item['link_title'], // check_plain() is unnecessary here
-      '#description' => '', // and also it translates titles to HTML entities
-      '#required' => FALSE,
+  $item_form['link_title'] = array(
+    '#type' => 'textfield',
+    //'#title' => t('Menu link title'),
+    '#default_value' => $item['link_title'],  // check_plain() is unnecessary here
+    '#description' => '',  // and also it translates titles to HTML entities
+    '#required' => FALSE
   );
 
   $item_form['weight'] = array(
-      '#type' => 'weight',
-      //'#title' => t('Weight'),
-      '#delta' => 50,
-      '#default_value' => $item['weight'],
-      '#description' => '',
+    '#type' => 'weight',
+    //'#title' => t('Weight'),
+    '#delta' => 50,
+    '#default_value' => $item['weight'],
+    '#description' => ''
   );
 
   $item_form['delete'] = array(
-      '#type' => 'checkbox',
-      '#title' => '',
+    '#type' => 'checkbox',
+    '#title' => ''
   );
 
   return $item_form;
@@ -207,16 +225,18 @@ function _nodesymlinks_form_alter(&$form, $form_state, $form_id) {
   $collapsed = count($nodesymlinks) ? TRUE : FALSE;
 
   $form['menu']['nodesymlinks'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Show in More Locations'),
-      '#access' => user_access('administer menu') || user_access('administer nodesymlinks'),
-      '#collapsible' => TRUE,
-      '#collapsed' => $collapsed,
-      '#tree' => TRUE,
-      '#weight' => 1,
-      '#prefix' => '',
-      '#suffix' => '',
-      '#attributes' => array('class' => 'nodesymlinks-items-form'),
+    '#type' => 'fieldset',
+    '#title' => t('Show in More Locations'),
+    '#access' => user_access('administer menu') || user_access('administer nodesymlinks'),
+    '#collapsible' => TRUE,
+    '#collapsed' => $collapsed,
+    '#tree' => TRUE,
+    '#weight' => 1,
+    '#prefix' => '',
+    '#suffix' => '',
+    '#attributes' => array(
+      'class' => 'nodesymlinks-items-form'
+    )
   );
 
   // Submenu Tree Settings & Siblingmenu Tree Settings
@@ -231,17 +251,22 @@ function _nodesymlinks_form_alter(&$form, $form_state, $form_id) {
   $form['menu']['nodesymlinks']['items']['#theme'] = 'nodesymlinks_form_items';
 
   foreach ($nodesymlinks as $item) {
-    $form['menu']['nodesymlinks']['items'][$delta++] = _nodesymlinks_form_field($item);
+    $form['menu']['nodesymlinks']['items'][$delta ++] = _nodesymlinks_form_field($item);
   }
   if (isset($form_state['item_count']['nodesymlinks'])) {
     $new_max_delta = $form_state['item_count']['nodesymlinks'] - 1;
-    for ($delta; $delta <= $new_max_delta; ++$delta) {
-      $form['menu']['nodesymlinks']['items'][$delta] = _nodesymlinks_form_field(array('new_item' => TRUE, 'link_title' => $form['#node']->title));
+    for ($delta; $delta <= $new_max_delta; ++ $delta) {
+      $form['menu']['nodesymlinks']['items'][$delta] = _nodesymlinks_form_field(array(
+        'new_item' => TRUE,
+        'link_title' => $form['#node']->title
+      ));
     }
   }
 
   $form['menu']['nodesymlinks']['#description'] = t('This module allows you to show this node\'s content within multiple places in your site.<br />');
-  $form['menu']['nodesymlinks']['#description'] .= '<b>' . t('Parent item') . ':</b> ' . t('The place where this page\'s content will appear. It will use the selected parent\'s breadcrumbs and sidebar. Items in the hierarchy deeper than ' . (MENU_MAX_DEPTH - 1) . ' levels may not appear.', array('!maxdepth' => MENU_MAX_DEPTH));
+  $form['menu']['nodesymlinks']['#description'] .= '<b>' . t('Parent item') . ':</b> ' . t('The place where this page\'s content will appear. It will use the selected parent\'s breadcrumbs and sidebar. Items in the hierarchy deeper than ' . (MENU_MAX_DEPTH - 1) . ' levels may not appear.', array(
+    '!maxdepth' => MENU_MAX_DEPTH
+  ));
   $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Menu link title') . ':</b> ' . t('The link text corresponding to this item that should appear in the menu.');
   $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Weight') . ':</b> ' . t('Optional. In the menu, a higher weight number will sink down and a lower weight will be positioned closer to the top.');
   $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Delete') . ':</b> ' . t('To delete nodesymlinks, first check the "Delete" checkbox in the desired rows, then click "Delete Location(s)".');
@@ -253,28 +278,33 @@ function _nodesymlinks_form_alter(&$form, $form_state, $form_id) {
   //NOTE: Markup form element has no prefix and suffix, so the lines above will be ignored by FAPI anyway.
   //      AHAH markers are currently injected by items theme function
 
+
   $form['menu']['nodesymlinks']['delete'] = array(
-      '#type' => 'submit',
-      '#value' => t('Delete Location(s)'),
-      '#submit' => array('nodesymlinks_node_form_submit_delete'),
-      '#ahah' => array(
-          'path' => 'nodesymlinks/ahah',
-          'wrapper' => 'nodesymlinks-items-ahah',
-          'method' => 'replace',
-          'effect' => 'fade',
-      ),
+    '#type' => 'submit',
+    '#value' => t('Delete Location(s)'),
+    '#submit' => array(
+      'nodesymlinks_node_form_submit_delete'
+    ),
+    '#ahah' => array(
+      'path' => 'nodesymlinks/ahah',
+      'wrapper' => 'nodesymlinks-items-ahah',
+      'method' => 'replace',
+      'effect' => 'fade'
+    )
   );
 
   $form['menu']['nodesymlinks']['add'] = array(
-      '#type' => 'submit',
-      '#value' => t('Add Location'),
-      '#submit' => array('nodesymlinks_node_form_submit_add'),
-      '#ahah' => array(
-          'path' => 'nodesymlinks/ahah',
-          'wrapper' => 'nodesymlinks-items-ahah',
-          'method' => 'replace',
-          'effect' => 'fade',
-      ),
+    '#type' => 'submit',
+    '#value' => t('Add Location'),
+    '#submit' => array(
+      'nodesymlinks_node_form_submit_add'
+    ),
+    '#ahah' => array(
+      'path' => 'nodesymlinks/ahah',
+      'wrapper' => 'nodesymlinks-items-ahah',
+      'method' => 'replace',
+      'effect' => 'fade'
+    )
   );
   $form['#validate'][] = 'nodesymlinks_node_form_validate';
 
@@ -317,7 +347,7 @@ function nodesymlinks_node_form_submit_delete($form, &$form_state) {
     foreach ($item_keys as $delta) {
       // remove item from both values and form array
       // however this doesn't remove item from rendered form items
-      if (!empty($values_items[$delta]['delete']) && $values_items[$delta]['delete']) {
+      if (! empty($values_items[$delta]['delete']) && $values_items[$delta]['delete']) {
         unset($values_items[$delta]);
         unset($form_items[$delta]);
       }
@@ -382,17 +412,17 @@ function nodesymlinks_create_item_path(&$item, &$node) {
  */
 function nodesymlinks_item_process(&$item, &$node) {
   $item_defaults = array(
-      'link_title' => '',
-      'mlid' => 0,
-      'plid' => 0,
-      'menu_name' => 'navigation',
-      'weight' => 0,
-      'options' => array(),
-      'module' => 'nodesymlinks',
-      'expanded' => 0,
-      'hidden' => 0,
-      'has_children' => 0,
-      'customized' => 0
+    'link_title' => '',
+    'mlid' => 0,
+    'plid' => 0,
+    'menu_name' => 'navigation',
+    'weight' => 0,
+    'options' => array(),
+    'module' => 'nodesymlinks',
+    'expanded' => 0,
+    'hidden' => 0,
+    'has_children' => 0,
+    'customized' => 0
   );
   // load defaults
   $item += $item_defaults;
@@ -400,10 +430,10 @@ function nodesymlinks_item_process(&$item, &$node) {
   // mark new item, $item[mlid]=0 is changed during menu_link_save, so
   // it can't be used to marking
   $item['is_new'] = ($item['mlid'] == 0) ? TRUE : FALSE;
-  if (!empty($item['parents'])) {
+  if (! empty($item['parents'])) {
     list($item['menu_name'], $item['plid']) = explode(':', $item['parents']);
   }
-  if (!$item['customized']) {
+  if (! $item['customized']) {
     $item['options']['attributes']['title'] = trim($node->title);
   }
 
@@ -460,13 +490,14 @@ function nodesymlinks_item_save(&$item, &$node) {
         // make alias
         $node_alias = ($node->path == 'node/' . $node->nid) ? NULL : $node->path;
         if ($node_alias) {
-          path_set_alias($item['link_path'], $node_alias .'_'. $item['mlid']);
+          path_set_alias($item['link_path'], $node_alias . '_' . $item['mlid']);
         }
       }
     }
 
     return TRUE;
   }
+
   return FALSE;
 }
 

@@ -1,6 +1,7 @@
 <?php
 // $Id$
 
+
 /**
  * Admin Settings Page callback. Just renders a listing of currently active
  * node alternate locations.
@@ -18,9 +19,17 @@ function nodesymlinks_admin() {
 
   // Render items
   if (count($items)) {
-    $parent_options = menu_parent_options(menu_get_menus(), array('mlid' => 0));
+    $parent_options = menu_parent_options(menu_get_menus(), array(
+      'mlid' => 0
+    ));
     $output .= '<p>' . t('All alternate node locations') . '</p>';
-    $header = array(t('Original Node'), t('Parent Item'), t('Link title'), t('Weight'), t('Links'));
+    $header = array(
+      t('Original Node'),
+      t('Parent Item'),
+      t('Link title'),
+      t('Weight'),
+      t('Links')
+    );
     $rows = array();
 
     foreach ($items as $item) {
@@ -60,23 +69,23 @@ function nodesymlinks_settings($form_state) {
   $form = array();
 
   $form['breadcrumbs'] = array(
-      '#type' => 'fieldset',
-      '#title' => 'Breadcrumb settings'
+    '#type' => 'fieldset',
+    '#title' => 'Breadcrumb settings'
   );
   $form['breadcrumbs']['nodesymlinks_crumbs_include_home'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Breadcrumbs starts with "Home" link'),
-      '#default_value' => variable_get('nodesymlinks_crumbs_include_home', 1),
+    '#type' => 'checkbox',
+    '#title' => t('Breadcrumbs starts with "Home" link'),
+    '#default_value' => variable_get('nodesymlinks_crumbs_include_home', 1)
   );
   $form['breadcrumbs']['nodesymlinks_crumbs_lastcrumb'] = array(
-      '#type' => 'radios',
-      '#title' => t('Last breadcrumb is'),
-      '#options' => array(
-          'parent' => t('Parent of the current menu item'),
-          'current_plain' => t('Current menu item title'),
-          'current_link' => t('Current menu item as link'),
-      ),
-      '#default_value' => variable_get('nodesymlinks_crumbs_lastcrumb', 'parent'),
+    '#type' => 'radios',
+    '#title' => t('Last breadcrumb is'),
+    '#options' => array(
+      'parent' => t('Parent of the current menu item'),
+      'current_plain' => t('Current menu item title'),
+      'current_link' => t('Current menu item as link')
+    ),
+    '#default_value' => variable_get('nodesymlinks_crumbs_lastcrumb', 'parent')
   );
 
   return system_settings_form($form);

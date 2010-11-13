@@ -1,13 +1,19 @@
 <?php
 // $Id$
 
+/**
+ * Function for creating aliases using Pathaouto API
+ *
+ * @param array $item
+ * @param object $node
+ * @param string $op
+ */
 function nodesymlinks_pathauto_create_alias($item, $node, $op = 'return') {
   $pathauto_alias = '';
   $source = 'node/' . $node->nid . '/mid/' . $item['mlid'];
   $entity_id = $node->nid;
   $language = $node->language;
   $type = $node->type;
-
 
   if (nodesymlinks_pathauto_version() == 1) {
     // For pathauto 6.x-1.x.
@@ -21,39 +27,62 @@ function nodesymlinks_pathauto_create_alias($item, $node, $op = 'return') {
   }
   else {
     // For 6.x-2.x (tested with 6.x-2.0-alpha2).
-    $data = array('node' => $node, 'nodesymlinks' => $item);
+    $data = array(
+      'node' => $node,
+      'nodesymlinks' => $item
+    );
     $pathauto_alias = pathauto_create_alias('nodesymlinks', $op, $source, $data, $entity_id, $type, $language);
   }
 
   return $pathauto_alias;
 }
 
+/**
+ * Helper function which detects Pathauto version. Uses static caching.
+ *
+ * @return int
+ */
 function nodesymlinks_pathauto_version() {
-  $version = 0;
+  static $version = NULL;
 
-  // Get Pathauto version. @todo: find a way to successfully get version if downloaded via CVS.
-  $pathauto = drupal_parse_info_file(drupal_get_path('module', 'pathauto') . '/pathauto.info');
-  if ($pathauto['version']) {
-    // Will return version formatted like: 6.x-2.x-dev.
-    $parts = explode('-', $pathauto['version']);
-    // Get '1' or '2'.
-    $version = $parts[1][0];
+  if (is_null($version)) {
+    $version = 0;
+    // Get Pathauto version. @todo: find a way to successfully get version if downloaded via CVS.
+    $pathauto = drupal_parse_info_file(drupal_get_path('module', 'pathauto') . '/pathauto.info');
+    if ($pathauto['version']) {
+      // Will return version formatted like: 6.x-2.x-dev.
+      $parts = explode('-', $pathauto['version']);
+      // Get '1' or '2'.
+      $version = $parts[1][0];
+    }
   }
 
   return $version;
 }
 
+/**
+ * Generates tokens in right order - needed when merging tokens from different sources.
+ *
+ * @param array &$tokens
+ */
 function nodesymlinks_reconstruct_tokens(&$tokens) {
   unset($tokens['tokens']);
   $tokens['tokens'] = array_map('_nodesymlinks_key2token', array_keys($tokens['values']));
 }
 
+/**
+ * Converts given string to token string "[string]".
+ *
+ * @param string $token
+ *
+ * @return string
+ */
 function _nodesymlinks_key2token($token) {
   return "[$token]";
 }
 
 /**
- * Generate aliases for all nodes without aliases.
+ * Generate aliases for all nodesymlinks without aliases.
  */
 function nodesymlinks_pathauto_bulkupdate() {
   $count = 0;
@@ -77,11 +106,9 @@ function nodesymlinks_pathauto_bulkupdate() {
       $node->taxonomy = array_keys(taxonomy_node_get_terms($node));
     }
     if (nodesymlinks_pathauto_create_alias($item, $node, 'bulkupdate')) {
-      $count++;
+      $count ++;
     }
   }
 
-  drupal_set_message(format_plural($count,
-                  'Bulk generation of nodes completed, one alias generated.',
-                  'Bulk generation of nodes completed, @count aliases generated.'));
+  drupal_set_message(format_plural($count, 'Bulk generation of nodes completed, one alias generated.', 'Bulk generation of nodes completed, @count aliases generated.'));
 }

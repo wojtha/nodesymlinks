@@ -101,7 +101,7 @@ function nodesymlinks_perm() {
  */
 function nodesymlinks_page($node, $mid) {
   // don't allow duplicates to be indexed
-  if (!drupal_is_front_page()) {
+  if (! drupal_is_front_page()) {
     drupal_set_html_head('<meta name="robots" content="noindex, follow">');
   }
 
@@ -167,10 +167,9 @@ function _nodesymlinks_recurse_crumbs($tree, $item, &$crumbs, $above = array()) 
 
 
 function _nodesymlinks_include($name = '') {
-  $name = $name ? 'nodesymlinks.'. $name : 'nodesymlinks';
+  $name = $name ? 'nodesymlinks.' . $name : 'nodesymlinks';
   module_load_include('inc', 'nodesymlinks', $name);
 }
-
 
 /**
  * Implementation of hook_pathauto().
@@ -202,15 +201,14 @@ function nodesymlinks_pathauto($op) {
 function nodesymlinks_token_list($type = 'all') {
   $tokens = array();
   if ($type == 'nodesymlinks' || $type == 'all') {
-    $tokens['nodesymlinks']['nodesymlinks-menupath-raw'] = t("The unfiltered menu path (as reflected in the breadcrumb), not including Home or [menu]. Separated by /.");
-    $tokens['nodesymlinks']['nodesymlinks-menu'] = 'nodesymlinks-menu';
-    $tokens['nodesymlinks']['nodesymlinks-menu-raw'] = 'nodesymlinks-menu-raw';
-    $tokens['nodesymlinks']['nodesymlinks-menupath'] = 'nodesymlinks-menupath';
-    $tokens['nodesymlinks']['nodesymlinks-menupath-raw'] = 'nodesymlinks-menupath-raw';
-    $tokens['nodesymlinks']['nodesymlinks-menu-link-title'] = 'nodesymlinks-menu-link-title';
-    $tokens['nodesymlinks']['nodesymlinks-menu-link-title-raw'] = 'nodesymlinks-menu-link-title-raw';
-    $tokens['nodesymlinks']['nodesymlinks-menu-link-mlid'] = 'nodesymlinks-menu-link-mlid';
-    $tokens['nodesymlinks']['nodesymlinks-menu-link-plid'] = 'nodesymlinks-menu-link-plid';
+    $tokens['nodesymlinks']['nodesymlinks-menu']                = t("The name of the menu the node belongs to.");
+    $tokens['nodesymlinks']['nodesymlinks-menu-raw']            = t("The name of the menu the node belongs to.");
+    $tokens['nodesymlinks']['nodesymlinks-menupath']            = t("The menu path (as reflected in the breadcrumb), not including Home or [menu]. Separated by /.");
+    $tokens['nodesymlinks']['nodesymlinks-menupath-raw']        = t("The unfiltered menu path (as reflected in the breadcrumb), not including Home or [menu]. Separated by /.");
+    $tokens['nodesymlinks']['nodesymlinks-menu-link-title']     = t("The text used in the menu as link text for this item.");
+    $tokens['nodesymlinks']['nodesymlinks-menu-link-title-raw'] = t("The unfiltered text used in the menu as link text for this item.");
+    $tokens['nodesymlinks']['nodesymlinks-menu-link-mlid']      = t("The unique ID of the node's menu link.");
+    $tokens['nodesymlinks']['nodesymlinks-menu-link-plid']      = t("The unique ID of the node's menu link parent.");
     $tokens += token_get_list('node');
   }
   return $tokens;
@@ -227,7 +225,7 @@ function nodesymlinks_token_values($type, $object = NULL, $options = array()) {
     case 'nodesymlinks':
 
       // Now get the menu related information.
-      if (!empty($object['mlid'])) {
+      if (! empty($object['mlid'])) {
         $mlid = $object['mlid'];
         $node = $object['node'];
         $menu_link = menu_link_load($mlid);
@@ -240,8 +238,8 @@ function nodesymlinks_token_values($type, $object = NULL, $options = array()) {
           $trail[] = check_plain($title);
         }
 
-        $values['nodesymlinks-menupath'] = !empty($options['pathauto']) ? $trail : implode('/', $trail);
-        $values['nodesymlinks-menupath-raw'] = !empty($options['pathauto']) ? $trail_raw : implode('/', $trail_raw);
+        $values['nodesymlinks-menupath'] = ! empty($options['pathauto']) ? $trail : implode('/', $trail);
+        $values['nodesymlinks-menupath-raw'] = ! empty($options['pathauto']) ? $trail_raw : implode('/', $trail_raw);
         $values['nodesymlinks-menu'] = check_plain($menu);
         $values['nodesymlinks-menu-raw'] = $menu;
         $values['nodesymlinks-menu-link-title'] = check_plain($menu_link['title']);
@@ -264,7 +262,6 @@ function nodesymlinks_token_values($type, $object = NULL, $options = array()) {
   }
   return $values;
 }
-
 
 /**
  * Implementation of hook_nodeapi().
