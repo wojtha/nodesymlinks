@@ -1,4 +1,10 @@
-// $Id: CHANGELOG.txt,v 1.1.2.3 2009/09/14 22:58:57 wojtha Exp $
+// $Id:$
+
+NodeSymlinks 6.x-1.0-beta2, 2009-11-13
+------------------------------------
+#965954 by wojtha: Fixes ampersand and similar characters are converted to html entitities in menu titles
+#808002 by wojtha and scottrigby: Adding Pathauto/Tokens support, automatic generation of nodesymlink path aliases
+#807918 by wojtha: Adding support for bulk creation of aliases
 
 NodeSymlinks 6.x-1.0-beta1, 2009-09-14
 ------------------------------------
