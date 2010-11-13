@@ -1,5 +1,4 @@
 <?php
-
 // $Id$
 
 /**
@@ -158,9 +157,11 @@ function nodesymlinks_admin() {
 
       $rows[] = $row;
     }
-  } else {
+  }
+  else {
     $output .= '<p>' . t('No node duplicates found.') . '</p>';
   }
+
   $output .= theme('table', $header, $rows);
 
   return $output;
@@ -217,8 +218,7 @@ function nodesymlinks_get_breadcrumbs() {
  * Helper recursive function for generating breadcrumbs. Main part
  * of the code is taken from _menutrails_recurse_crumbs() function.
  *
- * @see _menutrails_recurse_crumbs()
- * @see nodesymlinks_get_breadcrumbs()
+ * @see _menutrails_recurse_crumbs(), nodesymlinks_get_breadcrumbs()
  */
 function _nodesymlinks_recurse_crumbs($tree, $item, &$crumbs, $above = array()) {
   foreach ($tree as $menu_item) {
@@ -230,7 +230,8 @@ function _nodesymlinks_recurse_crumbs($tree, $item, &$crumbs, $above = array()) 
       $last_crumb_type = variable_get('nodesymlinks_crumbs_lastcrumb', 'parent');
       if ($last_crumb_type == 'current_plain') {
         $crumbs[] = $menu_item['link']['link_title'];
-      } elseif ($last_crumb_type == 'current_link') {
+      }
+      elseif ($last_crumb_type == 'current_link') {
         $crumbs[] = l($menu_item['link']['link_title'], $menu_item['link']['link_path']);
       }
       break;
@@ -329,7 +330,8 @@ function nodesymlinks_form_alter(&$form, $form_state, $form_id) {
 
     if (isset($form_state['values'])) {
       $nodesymlinks = (array) $form_state['values']['menu']['nodesymlinks']['items'];
-    } else {
+    }
+    else {
       $nodesymlinks = (array) $form['#node']->nodesymlinks['items'];
     }
 
@@ -571,7 +573,8 @@ function nodesymlinks_item_save(&$item, &$node) {
       db_query("INSERT INTO {nodesymlinks_link_storage} (
         mlid, nid, item_data) VALUES (
           %d, %d, '%s')", $item['mlid'], $node->nid, serialize($item));
-    } else {
+    }
+    else {
       // Update in permanent store
       db_query("UPDATE {nodesymlinks_link_storage} SET
         nid = %d, item_data = '%s' WHERE
@@ -583,7 +586,8 @@ function nodesymlinks_item_save(&$item, &$node) {
       if (module_exists('pathauto')) {
         $op = ($item['is_new']) ? 'insert' : 'update';
         nodesymlinks_pathauto_create_alias($item, $node, $op);
-      } else {
+      }
+      else {
         // make alias
         $node_alias = ($node->path == 'node/' . $node->nid) ? NULL : $node->path;
         if ($node_alias) {
@@ -707,7 +711,7 @@ function nodesymlinks_pathauto_bulkupdate() {
 }
 
 /**
- * Implementation of hook_token_list()
+ * Implementation of hook_token_list().
  */
 function nodesymlinks_token_list($type = 'all') {
   $tokens = array();
@@ -729,16 +733,14 @@ function nodesymlinks_token_list($type = 'all') {
 /**
  * Implementation of hook_token_values().
  *
- * @todo: Currently this only works with one nodesymlink (the last one). To do that
- *   we would need to load a nodesymlink object as rather than $node, and evaluate 
- *   the token in that context.
+ * @see node_token_values() in token_node.inc
  */
 function nodesymlinks_token_values($type, $object = NULL, $options = array()) {
   $values = array();
   switch ($type) {
     case 'nodesymlinks':
 
-      // @see node_token_values() in token_node.inc
+      // 
       // Now get the menu related information.
       if (!empty($object['mlid'])) {
         $mlid = $object['mlid'];
@@ -761,7 +763,8 @@ function nodesymlinks_token_values($type, $object = NULL, $options = array()) {
         $values['nodesymlinks-menu-link-title-raw'] = $menu_link['link_title'];
         $values['nodesymlinks-menu-link-mlid'] = $menu_link['mlid'];
         $values['nodesymlinks-menu-link-plid'] = $menu_link['plid'];
-      } else {
+      }
+      else {
         $values['nodesymlinks-menupath'] = '';
         $values['nodesymlinks-menupath-raw'] = '';
         $values['nodesymlinks-menu'] = '';
@@ -775,22 +778,6 @@ function nodesymlinks_token_values($type, $object = NULL, $options = array()) {
       break;
   }
   return $values;
-}
-
-/**
- * Update the URL aliases for an individual node.
- *
- * @param $node
- *   A node object.
- * @param $op
- *   Operation being performed on the node ('insert', 'update' or 'bulkupdate').
- *
- * @see pathauto_node_update_alias()
- */
-function nodesymlinks_nodesymlink_update_alias($node, $op, $symlink) {
-  module_load_include('inc', 'pathauto');
-  $placeholders = pathauto_get_placeholders('node', $node);
-  pathauto_create_alias('node', $op, $placeholders, "node/{$node->nid}", $node->nid, $node->type, $node->language);
 }
 
 /**
@@ -861,7 +848,8 @@ function nodesymlinks_nodeapi(&$node, $op) {
           }
           if (nodesymlinks_item_save($item, $node)) {
             ++$count_saved;
-          } else {
+          }
+          else {
             drupal_set_message(t('There was an error when saving the menu link.'), 'error');
           }
         }
