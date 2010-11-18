@@ -85,7 +85,7 @@ function _nodesymlinks_key2token($token) {
 /**
  * Generate aliases for all nodesymlinks without aliases.
  */
-function nodesymlinks_pathauto_bulkupdate() {
+function _nodesymlinks_pathauto_bulkupdate() {
   $count = 0;
   $query = "SELECT m.mlid, m.link_path, alias.src, alias.dst
     FROM {menu_links} m LEFT JOIN {url_alias} alias ON m.link_path = alias.src

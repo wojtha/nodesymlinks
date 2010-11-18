@@ -185,14 +185,29 @@ function nodesymlinks_pathauto($op) {
       $settings['patterndefault'] = '[nodesymlinks-menupath-raw]';
       $settings['bulkname'] = t('Bulk generate aliases for nodesymlinks that are not aliased');
       $settings['bulkdescr'] = t('Generate aliases for all existing nodesymlinks which do not already have aliases.');
-      $settings['batch_update_callback'] = 'nodesymlinks_pathauto_bulkupdate';
-      $settings['batch_file'] = drupal_get_path('module', 'nodesymlinks') . '/nodesymlinks.pathauto.inc';
       $node_settings = node_pathauto($op);
       $settings['placeholders'] = $node_settings->placeholders;
+      // Next two settings is supported from Pathauto 2+
+      // Pathauto 1.x simply calls $function = $module . '_pathauto_bulkupdate';
+      $settings['batch_update_callback'] = '_nodesymlinks_pathauto_bulkupdate';
+      $settings['batch_file'] = drupal_get_path('module', 'nodesymlinks') . '/nodesymlinks.pathauto.inc';
       return (object) $settings;
     default:
       break;
   }
+}
+
+/**
+ * Implementation of hook_pathauto_bulkupdate().
+ *
+ * @deprecated since Pathauto 2.x
+ *
+ * For Pathauto 1.x
+ * @see pathauto.api.inc, pathauto.admin.inc:260
+ */
+function nodesymlinks_pathauto_bulkupdate() {
+  _nodesymlinks_include('pathauto');
+  _nodesymlinks_pathauto_bulkupdate();
 }
 
 /**
