@@ -1,6 +1,6 @@
 // $Id:$
 
-NodeSymlinks 6.x-1.0-beta2, 2009-11-13
+NodeSymlinks 6.x-1.0-beta2, 2010-11-13
 ------------------------------------
 #965954 by wojtha: Fixes ampersand and similar characters are converted to html entitities in menu titles
 #808002 by wojtha and scottrigby: Adding Pathauto/Tokens support, automatic generation of nodesymlink path aliases
