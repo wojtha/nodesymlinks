@@ -647,12 +647,14 @@ function nodesymlinks_item_alias_save(&$item, &$node) {
         return path_set_alias($item['link_path'], $item['alias']['path'], $pid, $node->language);
       }
     }
+    elseif (!empty($item['alias']['path'])) {
+      // Save custom path alias
+      return path_set_alias($item['link_path'], trim($item['alias']['path']), $pid, $node->language);
+    }
     else {
-      // Make default alias
+      // Create and save default alias based on node path
       $node_alias = ($node->path == 'node/' . $node->nid) ? NULL : $node->path;
-      if ($node_alias) {
-        return path_set_alias($item['link_path'], $node_alias . '_' . $item['mlid'], $pid, $node->language);
-      }
+      return path_set_alias($item['link_path'], $node_alias . '_' . $item['mlid'], $pid, $node->language);
     }
   }
 }
