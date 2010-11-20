@@ -38,6 +38,44 @@ function nodesymlinks_get_items_by_nid($nid) {
  *
  * @see nodesymlinks_nodeapi()
  */
+function _nodesymlinks_nodeapi_validate(&$node, $op) {
+  // check if aliases are unique
+  if (module_exists('path')) {
+    $items = (array) $node->menu['nodesymlinks']['items'];
+    $language = isset($node->language) ? $node->language : '';
+    $unique_paths = array();
+
+    foreach ($items as $i => &$item) {
+      $item['alias']['path'] = $path = trim($item['alias']['path']);
+      if (!empty($item['alias']['path'])) {
+        // Check if paths are unique in this form
+        if (in_array($path, $unique_paths)) {
+          form_set_error("menu][nodesymlinks][items][$i][alias][path", t('The path is already in use.'));
+        }
+        else {
+          $unique_paths[] = $path;
+        }
+
+        // Check if paths are unique in the DB
+        if (module_exists('pathauto') && !empty($item['alias']['pathauto'])) {
+          // do nothing - Let pathauto do their job
+        }
+        else {
+          $system_path = nodesymlinks_create_item_path($item, $node);
+          if (db_result(db_query("SELECT COUNT(dst) FROM {url_alias} WHERE dst = '%s' AND src != '%s' AND language = '%s'", $path, $system_path, $language))) {
+            form_set_error("menu][nodesymlinks][items][$i][alias][path", t('The path is already in use.'));
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implementation of hook_nodeapi() OP: Insert & Update.
+ *
+ * @see nodesymlinks_nodeapi()
+ */
 function _nodesymlinks_nodeapi_insert_update(&$node, $op) {
   $count_deleted = $count_saved = 0;
   $items = (array) $node->menu['nodesymlinks']['items'];
@@ -113,7 +151,6 @@ function _nodesymlinks_nodeapi_prepare_presave(&$node, $op) {
   }
   // Set default values.
   $node->nodesymlinks['items'] = $items;
-  dpm($items);
 
   //array('link_title' => '', 'mlid' => 0, 'plid' => 0, 'menu_name' => $menu_name, 'weight' => 0, 'options' => array(), 'module' => 'menu', 'expanded' => 0, 'hidden' => 0, 'has_children' => 0, 'customized' => 0);
 }

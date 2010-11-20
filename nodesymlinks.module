@@ -300,6 +300,12 @@ function nodesymlinks_nodeapi(&$node, $op) {
       menu_set_item(NULL, $item);
       }
       break; */
+    case 'validate':
+      if (isset($node->menu['nodesymlinks'])) {
+        _nodesymlinks_include();
+        _nodesymlinks_nodeapi_validate($node, $op);
+      }
+      break;
     case 'insert':
     case 'update':
       if (isset($node->menu['nodesymlinks'])) {
