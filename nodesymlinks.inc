@@ -219,7 +219,7 @@ function _nodesymlinks_form_field($item = NULL, $node) {
       // If there is a pattern, show the automatic alias checkbox.
       if ($pattern) {
         if (!isset($item['alias']['pathauto'])) {
-          if (!empty($node->nid)) {
+          if (!empty($node->nid) && !empty($item['mlid'])) {
             // If this is not a new node, compare it's current alias to the
             // alias that would be genereted by pathauto. If they are the same,
             // then keep the automatic alias enabled.
@@ -242,13 +242,18 @@ function _nodesymlinks_form_field($item = NULL, $node) {
       }
     }
     
-    $path = !empty($item['alias']['path']) ? $item['alias']['path'] : '';
+    $path = !empty($item['alias']['path']) ? $item['alias']['path'] : $item['alias']['old_path'];
+    $old_path = !empty($item['alias']['path']) ? $item['alias']['path'] : $item['alias']['old_path'];
     
     $item_form['alias']['path'] = array(
       '#type' => 'textfield',
       '#default_value' => $path,
       '#maxlength' => 128,
       '#access' => user_access('create url aliases'),
+    );
+    $item_form['alias']['old_path'] = array(
+      '#type' => 'value',
+      '#value' => $old_path,
     );
 
     if ($path) {
