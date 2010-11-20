@@ -113,6 +113,7 @@ function _nodesymlinks_nodeapi_prepare_presave(&$node, $op) {
   }
   // Set default values.
   $node->nodesymlinks['items'] = $items;
+  dpm($items);
 
   //array('link_title' => '', 'mlid' => 0, 'plid' => 0, 'menu_name' => $menu_name, 'weight' => 0, 'options' => array(), 'module' => 'menu', 'expanded' => 0, 'hidden' => 0, 'has_children' => 0, 'customized' => 0);
 }
@@ -578,6 +579,8 @@ function nodesymlinks_item_save(&$item, &$node) {
 function nodesymlinks_item_alias_save(&$item, &$node) {
   // Integrate with Path
   if (module_exists('path')) {
+    // We need to know pid to provide "update" otherwise Path creates new alias to the same path
+    $pid = !empty($item['alias']['pid']) ? $item['alias']['pid'] : NULL;
     // Integrate with Pathauto.
     if (module_exists('pathauto')) {
       // Pathauto alias
@@ -588,14 +591,14 @@ function nodesymlinks_item_alias_save(&$item, &$node) {
       }
       // Custom alias
       else {
-        return path_set_alias($item['link_path'], $item['alias']['path']);
+        return path_set_alias($item['link_path'], $item['alias']['path'], $pid, $node->language);
       }
     }
     else {
       // Make default alias
       $node_alias = ($node->path == 'node/' . $node->nid) ? NULL : $node->path;
       if ($node_alias) {
-        return path_set_alias($item['link_path'], $node_alias . '_' . $item['mlid']);
+        return path_set_alias($item['link_path'], $node_alias . '_' . $item['mlid'], $pid, $node->language);
       }
     }
   }
