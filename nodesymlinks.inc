@@ -243,19 +243,14 @@ function _nodesymlinks_form_field($item = NULL, $node) {
     }
     
     $path = !empty($item['alias']['path']) ? $item['alias']['path'] : '';
-
-    $item_form['alias']['path'] = array(
-      '#type' => 'checkbox',
-      '#options' => array(),
-      '#default_value' => 0,
-      '#access' => user_access('create url aliases'),
-    );
+    
     $item_form['alias']['path'] = array(
       '#type' => 'textfield',
       '#default_value' => $path,
       '#maxlength' => 128,
       '#access' => user_access('create url aliases'),
     );
+
     if ($path) {
       $item_form['alias']['pid'] = array(
         '#type' => 'value',
