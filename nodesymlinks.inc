@@ -141,7 +141,6 @@ function _nodesymlinks_nodeapi_delete(&$node, $op) {
   db_query("DELETE FROM {url_alias} WHERE src LIKE 'node/%d/mid/%%'", $node->nid);
   // Delete our nodesymlinks storage
   db_query('DELETE FROM {nodesymlinks_link_storage} WHERE nid=%d', $node->nid);
-  break;
 }
 
 /**
