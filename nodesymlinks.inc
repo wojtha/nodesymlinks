@@ -325,6 +325,10 @@ function _nodesymlinks_form_alter(&$form, $form_state, $form_id) {
     '#theme' => 'nodesymlinks_form_items',
    );
 
+  // Add JavaScript that will disable the path textfield when the automatic
+  // alias checkbox is checked.
+  drupal_add_js(drupal_get_path('module', 'nodesymlinks') .'/nodesymlinks.js');
+
   foreach ($nodesymlinks as $item) {
     $form['menu']['nodesymlinks']['items'][$delta++] = _nodesymlinks_form_field($item, $node);
   }
@@ -636,10 +640,10 @@ function theme_nodesymlinks_form_items($form) {
     $header[] = t('Pathauto');
   }
   if ($path) {
-    $header[] = t('Custom alias');
+    $header[] = t('Path alias');
   }
   $header[] = t('Weight');
-  $output .= theme_table($header, $rows);
+  $output .= theme('table', $header, $rows, array('id' => 'nodesymlinks-items'));
   $output .= drupal_render($form);
   $output .= '</div>';
   return $output;
