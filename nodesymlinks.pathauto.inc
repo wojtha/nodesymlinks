@@ -113,3 +113,52 @@ function _nodesymlinks_pathauto_bulkupdate() {
 
   drupal_set_message(format_plural($count, 'Bulk generation of nodes completed, one alias generated.', 'Bulk generation of nodes completed, @count aliases generated.'));
 }
+
+/**
+ * Load an URL alias pattern by entity, bundle, and language.
+ *
+ * Use this in Pathauto 1.x
+ *
+ * @param $entity
+ *   An entity (e.g. node, taxonomy, user, etc.)
+ * @param $bundle
+ *   A bundle (e.g. node type, vocabulary ID, etc.)
+ * @param $language
+ *   A language code, defaults to the language-neutral empty string.
+ * @param $clear
+ *   An optional boolean to clear the function's internal cache if TRUE.
+ *
+ * @see pathauto_pattern_load_by_entity()
+ */
+function _nodesymlinks_pathauto_pattern_load_by_entity($bundle = '', $language = '', $clear = FALSE) {
+  static $patterns = array();
+  $entity = 'nodesymlinks';
+
+  if ($clear) {
+    $patterns = array();
+    return;
+  }
+
+  $pattern_id = "$entity:$bundle:$language";
+  $pattern = '';
+  if (!isset($patterns[$pattern_id])) {
+    $variables = array();
+    if ($language) {
+      $variables[] = "pathauto_{$entity}_{$bundle}_{$language}_pattern";
+    }
+    if ($bundle) {
+      $variables[] = "pathauto_{$entity}_{$bundle}_pattern";
+    }
+    $variables[] = "pathauto_{$entity}_pattern";
+
+    foreach ($variables as $variable) {
+      if ($pattern = trim(variable_get($variable, ''))) {
+        break;
+      }
+    }
+
+    $patterns[$pattern_id] = $pattern;
+  }
+
+  return $patterns[$pattern_id];
+}

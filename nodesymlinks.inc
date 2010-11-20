@@ -201,9 +201,16 @@ function _nodesymlinks_form_field($item = NULL, $node) {
     );
 
     if (module_exists('pathauto')) {
+      _nodesymlinks_include('pathauto');
 
       // Find if there is an automatic alias pattern for this node type.
-      $pattern = pathauto_pattern_load_by_entity('nodesymlinks', $node->type, $language);
+      $pattern = '';
+      if (nodesymlinks_pathauto_version() == 1) {
+        $pattern = _nodesymlinks_pathauto_pattern_load_by_entity($node->type, $language);
+      }
+      else {
+        $pattern = pathauto_pattern_load_by_entity('nodesymlinks', $node->type, $language);
+      }
 
       // If there is a pattern, show the automatic alias checkbox.
       if ($pattern) {
