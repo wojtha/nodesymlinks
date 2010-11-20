@@ -547,26 +547,46 @@ function nodesymlinks_item_save(&$item, &$node) {
         mlid = %d", $node->nid, serialize($item), $item['mlid']);
     }
 
-    if (module_exists('path')) {
-      // Integrate with pathauto.
-      if (module_exists('pathauto')) {
-        $op = ($item['is_new']) ? 'insert' : 'update';
-        _nodesymlinks_include('pathauto');
-        nodesymlinks_pathauto_create_alias($item, $node, $op);
-      }
-      else {
-        // make alias
-        $node_alias = ($node->path == 'node/' . $node->nid) ? NULL : $node->path;
-        if ($node_alias) {
-          path_set_alias($item['link_path'], $node_alias . '_' . $item['mlid']);
-        }
-      }
-    }
-
+    // Creates appropriate aliases
+    nodesymlinks_item_alias_save(&$item, &$node);
+    
     return TRUE;
   }
 
   return FALSE;
+}
+
+/**
+ * Create alias for duplicate menulink if original node
+ *
+ * @param item $item
+ * @param node $node
+ * @return bool
+ */
+function nodesymlinks_item_alias_save(&$item, &$node) {
+  // Integrate with Path
+  if (module_exists('path')) {
+    // Integrate with Pathauto.
+    if (module_exists('pathauto')) {
+      // Pathauto alias
+      if (!empty($item['alias']['pathauto']) || empty($item['alias']['path'])) {
+        $op = ($item['is_new']) ? 'insert' : 'update';
+        _nodesymlinks_include('pathauto');
+        return nodesymlinks_pathauto_create_alias($item, $node, $op);
+      }
+      // Custom alias
+      else {
+        return path_set_alias($item['link_path'], $item['alias']['path']);
+      }
+    }
+    else {
+      // Make default alias
+      $node_alias = ($node->path == 'node/' . $node->nid) ? NULL : $node->path;
+      if ($node_alias) {
+        return path_set_alias($item['link_path'], $node_alias . '_' . $item['mlid']);
+      }
+    }
+  }
 }
 
 /**
