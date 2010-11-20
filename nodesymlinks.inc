@@ -42,7 +42,6 @@ function _nodesymlinks_nodeapi_insert_update(&$node, $op) {
   $count_deleted = $count_saved = 0;
   $items = (array) $node->menu['nodesymlinks']['items'];
   $update_items = array();
-  $db_items = nodesymlinks_get_items_by_nid($node->nid);
 
   // Save all menulinks from form (insert/update is handled by Menu API)
   foreach ($items as &$item) {
@@ -52,7 +51,7 @@ function _nodesymlinks_nodeapi_insert_update(&$node, $op) {
       $update_items[] = $item['mlid'];
     }
     if (nodesymlinks_item_save($item, $node)) {
-      ++ $count_saved;
+      ++$count_saved;
     }
     else {
       drupal_set_message(t('There was an error when saving the menu link.'), 'error');
@@ -61,6 +60,7 @@ function _nodesymlinks_nodeapi_insert_update(&$node, $op) {
 
   // Detect which items exists in database, but it was not saved.
   // Delete them.
+  $db_items = nodesymlinks_get_items_by_nid($node->nid);
   $items_to_delete = array_diff(array_keys($db_items), $update_items);
   while ($mlid = array_pop($items_to_delete)) {
     nodesymlinks_item_delete($db_items[$mlid]);
@@ -120,7 +120,7 @@ function _nodesymlinks_nodeapi_prepare_presave(&$node, $op) {
  * @param item $item
  * @return form_elements
  */
-function _nodesymlinks_form_field($item = NULL) {
+function _nodesymlinks_form_field($item = NULL, $node) {
   // field_number is used to handle deletions.
   static $field_number = 0;
 
@@ -144,7 +144,7 @@ function _nodesymlinks_form_field($item = NULL) {
   $item_form = array();
   $item_form['#tree'] = TRUE;
 
-  // TODO simplify this - whole array can be stored in Value type
+  // @TODO Maybe we can simplify this - whole array can be stored in Value type
   foreach (array(
     'mlid',
     'module',
@@ -191,6 +191,69 @@ function _nodesymlinks_form_field($item = NULL) {
     '#description' => '',  // and also it translates titles to HTML entities
     '#required' => FALSE
   );
+  
+
+  if (module_exists('path')) {
+    $language = isset($node->language) ? $node->language : '';
+
+    $item_form['alias'] = array(
+      '#tree' => TRUE,
+    );
+
+    if (module_exists('pathauto')) {
+
+      // Find if there is an automatic alias pattern for this node type.
+      $pattern = pathauto_pattern_load_by_entity('nodesymlinks', $node->type, $language);
+
+      // If there is a pattern, show the automatic alias checkbox.
+      if ($pattern) {
+        if (!isset($item['alias']['pathauto'])) {
+          if (!empty($node->nid)) {
+            // If this is not a new node, compare it's current alias to the
+            // alias that would be genereted by pathauto. If they are the same,
+            // then keep the automatic alias enabled.
+//            module_load_include('inc', 'pathauto');
+//            $pathauto_alias = pathauto_create_alias('node', 'return', "node/{$node->nid}", array('node' => $node), $node->nid, $node->type, $node->language);
+            _nodesymlinks_include('pathauto');
+            $pathauto_alias = nodesymlinks_pathauto_create_alias($item, $node);
+            $item['alias']['pathauto'] = isset($item['alias']['path']) && $item['alias']['path'] == $pathauto_alias;
+          }
+          else {
+            // If this is a new node, enable the automatic alias.
+            $item['alias']['pathauto'] = TRUE;
+          }
+        }
+
+        // Automatic alias
+        $item_form['alias']['pathauto'] = array(
+          //'#title' => t('Automatic alias'),
+          '#type' => 'checkbox',
+          '#default_value' => $item['alias']['pathauto'],
+        );
+      }
+    }
+    
+    $path = !empty($item['alias']['path']) ? $item['alias']['path'] : '';
+
+    $item_form['alias']['path'] = array(
+      '#type' => 'checkbox',
+      '#options' => array(),
+      '#default_value' => 0,
+      '#access' => user_access('create url aliases'),
+    );
+    $item_form['alias']['path'] = array(
+      '#type' => 'textfield',
+      '#default_value' => $path,
+      '#maxlength' => 128,
+      '#access' => user_access('create url aliases'),
+    );
+    if ($path) {
+      $item_form['alias']['pid'] = array(
+        '#type' => 'value',
+        '#value' => db_result(db_query("SELECT pid FROM {url_alias} WHERE dst = '%s' AND language = '%s'", $path, $item['language']))
+      );
+    }
+  }
 
   $item_form['weight'] = array(
     '#type' => 'weight',
@@ -214,12 +277,14 @@ function _nodesymlinks_form_field($item = NULL) {
 function _nodesymlinks_form_alter(&$form, $form_state, $form_id) {
   // Note - doing this to make sure the delete checkbox stays in the form.
   $form['#cache'] = TRUE;
+  $nodesymlinks = array();
+  $node = $form['#node'];
 
   if (isset($form_state['values'])) {
     $nodesymlinks = (array) $form_state['values']['menu']['nodesymlinks']['items'];
   }
   else {
-    $nodesymlinks = (array) $form['#node']->nodesymlinks['items'];
+    $nodesymlinks = (array) $node->nodesymlinks['items'];
   }
 
   $collapsed = count($nodesymlinks) ? TRUE : FALSE;
@@ -247,19 +312,22 @@ function _nodesymlinks_form_alter(&$form, $form_state, $form_id) {
   }
 
   $delta = 0;
-  $form['menu']['nodesymlinks']['items']['#tree'] = TRUE;
-  $form['menu']['nodesymlinks']['items']['#theme'] = 'nodesymlinks_form_items';
+  $form['menu']['nodesymlinks']['items'] = array(
+    '#tree' => TRUE,
+    '#theme' => 'nodesymlinks_form_items',
+   );
 
   foreach ($nodesymlinks as $item) {
-    $form['menu']['nodesymlinks']['items'][$delta ++] = _nodesymlinks_form_field($item);
+    $form['menu']['nodesymlinks']['items'][$delta++] = _nodesymlinks_form_field($item, $node);
   }
   if (isset($form_state['item_count']['nodesymlinks'])) {
     $new_max_delta = $form_state['item_count']['nodesymlinks'] - 1;
-    for ($delta; $delta <= $new_max_delta; ++ $delta) {
-      $form['menu']['nodesymlinks']['items'][$delta] = _nodesymlinks_form_field(array(
+    for ($delta; $delta <= $new_max_delta; ++$delta) {
+      $new_item = array(
         'new_item' => TRUE,
-        'link_title' => $form['#node']->title
-      ));
+        'link_title' => $node->title,
+      );
+      $form['menu']['nodesymlinks']['items'][$delta] = _nodesymlinks_form_field($new_item, $node);
     }
   }
 
@@ -512,16 +580,37 @@ function theme_nodesymlinks_form_items($form) {
   $output .= '<div id="nodesymlinks-items-ahah">';
   $items = element_children($form);
   $rows = array();
+  $path = $pathauto = FALSE;
+
   foreach ($items as $delta) {
     $row = array();
     $row[] = $delta;
     $row[] = drupal_render($form[$delta]['delete']);
     $row[] = drupal_render($form[$delta]['parents']);
     $row[] = drupal_render($form[$delta]['link_title']);
+    if (isset($form[$delta]['alias']['pathauto'])) {
+      $row[] = drupal_render($form[$delta]['alias']['pathauto']);
+      $pathauto = TRUE;
+    }
+    if (isset($form[$delta]['alias']['path'])) {
+      $row[] = drupal_render($form[$delta]['alias']['path']);
+      $path = TRUE;
+    }
     $row[] = drupal_render($form[$delta]['weight']);
     $rows[] = $row;
   }
-  $header = array('#', t('Delete'), t('Parent item'), t('Link title'), t('Weight'));
+  $header = array();
+  $header[] = '#';
+  $header[] = t('Delete');
+  $header[] = t('Parent item');
+  $header[] = t('Link title');
+  if ($pathauto) {
+    $header[] = t('Pathauto');
+  }
+  if ($path) {
+    $header[] = t('Custom alias');
+  }
+  $header[] = t('Weight');
   $output .= theme_table($header, $rows);
   $output .= drupal_render($form);
   $output .= '</div>';
