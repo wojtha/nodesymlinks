@@ -104,7 +104,10 @@ function _nodesymlinks_nodeapi_prepare_presave(&$node, $op) {
     $mlids = db_query("SELECT mlid FROM {menu_links} WHERE module = 'nodesymlinks' AND link_path LIKE 'node/%d/mid/%%' ORDER BY mlid ASC", $node->nid);
     if ($mlids) {
       while ($row = db_fetch_array($mlids)) {
-        $items[$row['mlid']] = menu_link_load($row['mlid']);
+        $items[$row['mlid']] = $item = menu_link_load($row['mlid']);
+        if (module_exists('path')) {
+          $items[$row['mlid']]['alias'] = db_fetch_array(db_query("SELECT pid, dst as path FROM {url_alias} WHERE src = '%s' AND language = '%s'", $item['link_path'], $node->language));
+        }
       }
     }
   }
@@ -219,8 +222,6 @@ function _nodesymlinks_form_field($item = NULL, $node) {
             // If this is not a new node, compare it's current alias to the
             // alias that would be genereted by pathauto. If they are the same,
             // then keep the automatic alias enabled.
-//            module_load_include('inc', 'pathauto');
-//            $pathauto_alias = pathauto_create_alias('node', 'return', "node/{$node->nid}", array('node' => $node), $node->nid, $node->type, $node->language);
             _nodesymlinks_include('pathauto');
             $pathauto_alias = nodesymlinks_pathauto_create_alias($item, $node);
             $item['alias']['pathauto'] = isset($item['alias']['path']) && $item['alias']['path'] == $pathauto_alias;
