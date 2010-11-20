@@ -75,7 +75,7 @@ function nodesymlinks_settings($form_state) {
   $form['breadcrumbs']['nodesymlinks_crumbs_include_home'] = array(
     '#type' => 'checkbox',
     '#title' => t('Breadcrumbs starts with "Home" link'),
-    '#default_value' => variable_get('nodesymlinks_crumbs_include_home', 1)
+    '#default_value' => variable_get('nodesymlinks_crumbs_include_home', 1),
   );
   $form['breadcrumbs']['nodesymlinks_crumbs_lastcrumb'] = array(
     '#type' => 'radios',
@@ -85,7 +85,19 @@ function nodesymlinks_settings($form_state) {
       'current_plain' => t('Current menu item title'),
       'current_link' => t('Current menu item as link')
     ),
-    '#default_value' => variable_get('nodesymlinks_crumbs_lastcrumb', 'parent')
+    '#default_value' => variable_get('nodesymlinks_crumbs_lastcrumb', 'parent'),
+  );
+
+  $form['nodeform'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Node form'
+  );
+  $form['nodeform']['nodesymlinks_check_menuitem'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Node menu item check'),
+    '#description' => t('Check if the node menu item is filled when some node symlink is defined. When enabled it will'.
+            ' warn you every time when you try to add nodesymlink leaving <b>Menu link title</b> field empty.'),
+    '#default_value' => variable_get('nodesymlinks_check_menuitem', 1),
   );
 
   return system_settings_form($form);

@@ -40,10 +40,13 @@ function nodesymlinks_get_items_by_nid($nid) {
  */
 function _nodesymlinks_nodeapi_validate(&$node, $op) {
   // check if aliases are unique
-  if (module_exists('path')) {
+  if (module_exists('path') && isset($node->menu['nodesymlinks']) && !empty($node->menu['nodesymlinks']['items'])) {
     $items = (array) $node->menu['nodesymlinks']['items'];
     $language = isset($node->language) ? $node->language : '';
     $unique_paths = array();
+    if (variable_get('nodesymlinks_check_menuitem', 1) && empty($node->menu['link_title']) && count($items)) {
+      form_set_error('menu][link_title', t('You have some nodesymlinks defined but primary node menu item is empty. Please create node menu item first.'));
+    }
 
     foreach ($items as $i => &$item) {
       $item['alias']['path'] = $path = trim($item['alias']['path']);
