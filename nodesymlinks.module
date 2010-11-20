@@ -310,6 +310,7 @@ function nodesymlinks_nodeapi(&$node, $op) {
     case 'delete':
       _nodesymlinks_include();
       _nodesymlinks_nodeapi_delete($node, $op);
+      break;
     case 'prepare':
     case 'presave':
       if (empty($node->nodesymlinks)) {
