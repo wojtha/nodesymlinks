@@ -56,11 +56,22 @@ function _nodesymlinks_nodeapi_validate(&$node, $op) {
           $unique_paths[] = $path;
         }
 
-        // Check if paths are unique in the DB
-        if (module_exists('pathauto') && !empty($item['alias']['pathauto'])) {
-          // do nothing - Let pathauto do their job
+        if (module_exists('pathauto')) {
+          // Check if the path is not empty when pathauto is switched off
+          if (empty($item['alias']['pathauto']) && empty($item['alias']['path'])) {
+            form_set_error("menu][nodesymlinks][items][$i][alias][path", t('The path is empty.'));
+          }
+          // Check if path is unique in the DB
+          else {
+            $system_path = nodesymlinks_create_item_path($item, $node);
+            if (db_result(db_query("SELECT COUNT(dst) FROM {url_alias} WHERE dst = '%s' AND src != '%s' AND language = '%s'", $path, $system_path, $language))) {
+              form_set_error("menu][nodesymlinks][items][$i][alias][path", t('The path is already in use.'));
+            }
+
+          }
         }
-        else {
+        // Without pathauto
+        elseif (!empty($item['alias']['path'])) {
           $system_path = nodesymlinks_create_item_path($item, $node);
           if (db_result(db_query("SELECT COUNT(dst) FROM {url_alias} WHERE dst = '%s' AND src != '%s' AND language = '%s'", $path, $system_path, $language))) {
             form_set_error("menu][nodesymlinks][items][$i][alias][path", t('The path is already in use.'));
@@ -236,7 +247,7 @@ function _nodesymlinks_form_field($item = NULL, $node) {
     '#description' => '',  // and also it translates titles to HTML entities
     '#required' => FALSE
   );
-  
+
 
   if (module_exists('path')) {
     $language = isset($node->language) ? $node->language : '';
@@ -282,10 +293,10 @@ function _nodesymlinks_form_field($item = NULL, $node) {
         );
       }
     }
-    
+
     $path = !empty($item['alias']['path']) ? $item['alias']['path'] : $item['alias']['old_path'];
     $old_path = !empty($item['alias']['path']) ? $item['alias']['path'] : $item['alias']['old_path'];
-    
+
     $item_form['alias']['path'] = array(
       '#type' => 'textfield',
       '#default_value' => $path,
@@ -604,7 +615,7 @@ function nodesymlinks_item_save(&$item, &$node) {
 
     // Creates appropriate aliases
     nodesymlinks_item_alias_save(&$item, &$node);
-    
+
     return $item['mlid'];
   }
 
