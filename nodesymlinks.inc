@@ -400,7 +400,14 @@ function _nodesymlinks_form_alter(&$form, $form_state, $form_id) {
   $form['menu']['nodesymlinks']['#description'] .= '<b>' . t('Parent item') . ':</b> ' . t('The place where this page\'s content will appear. It will use the selected parent\'s breadcrumbs and sidebar. Items in the hierarchy deeper than ' . (MENU_MAX_DEPTH - 1) . ' levels may not appear.', array(
     '!maxdepth' => MENU_MAX_DEPTH
   ));
-  $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Menu link title') . ':</b> ' . t('The link text corresponding to this item that should appear in the menu.');
+  $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Link title') . ':</b> ' . t('The link text corresponding to this item that should appear in the menu.');
+  if (module_exists('pathauto')) {
+    $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Pathauto') . ':</b> ' . t('Optional. When checked, path alias will be generated using Pathauto.');
+    $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Path') . ':</b> ' . t('Optional. When Pathauto checkbox is unchecked you can write custom unique path alias here.');
+  }
+  elseif (module_exists('path')) {
+    $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Path') . ':</b> ' . t('Optional. You can write custom unique path alias here. If you leave this field empty, default alias will be generated: <em>&lt;node-path&gt;_&lt;menu-link-id&gt;</em>');
+  }
   $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Weight') . ':</b> ' . t('Optional. In the menu, a higher weight number will sink down and a lower weight will be positioned closer to the top.');
   $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Delete') . ':</b> ' . t('To delete nodesymlinks, first check the "Delete" checkbox in the desired rows, then click "Delete Location(s)".');
   $form['menu']['nodesymlinks']['#description'] .= ' <br /><b>' . t('Saving') . ': ' . t('When you are done editing, you must click "Save" at the very bottom of the page to save your changes.') . '</b>';
