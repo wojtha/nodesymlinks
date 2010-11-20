@@ -79,17 +79,21 @@ function _nodesymlinks_nodeapi_validate(&$node, $op) {
 function _nodesymlinks_nodeapi_insert_update(&$node, $op) {
   $count_deleted = $count_saved = 0;
   $items = (array) $node->menu['nodesymlinks']['items'];
-  $update_items = array();
+  $saved_items = array();
 
   // Save all menulinks from form (insert/update is handled by Menu API)
   foreach ($items as &$item) {
     // load defaults and process item before save
     nodesymlinks_item_process($item, $node);
-    if (! $item['is_new']) {
-      $update_items[] = $item['mlid'];
+    if (!$item['is_new']) {
+      $saved_items[] = $item['mlid'];
     }
-    if (nodesymlinks_item_save($item, $node)) {
+
+    if ($mlid = nodesymlinks_item_save($item, $node)) {
       ++$count_saved;
+      if ($item['is_new']) {
+        $saved_items[] = $mlid;
+      }
     }
     else {
       drupal_set_message(t('There was an error when saving the menu link.'), 'error');
@@ -99,7 +103,7 @@ function _nodesymlinks_nodeapi_insert_update(&$node, $op) {
   // Detect which items exists in database, but it was not saved.
   // Delete them.
   $db_items = nodesymlinks_get_items_by_nid($node->nid);
-  $items_to_delete = array_diff(array_keys($db_items), $update_items);
+  $items_to_delete = array_diff(array_keys($db_items), $saved_items);
   while ($mlid = array_pop($items_to_delete)) {
     nodesymlinks_item_delete($db_items[$mlid]);
     ++$count_deleted;
@@ -567,7 +571,8 @@ function nodesymlinks_item_process(&$item, &$node) {
  *
  * @param item $item
  * @param node $node
- * @return bool
+ * @return
+ *    menu link ID or FALSE
  */
 function nodesymlinks_item_save(&$item, &$node) {
   /**
@@ -600,7 +605,7 @@ function nodesymlinks_item_save(&$item, &$node) {
     // Creates appropriate aliases
     nodesymlinks_item_alias_save(&$item, &$node);
     
-    return TRUE;
+    return $item['mlid'];
   }
 
   return FALSE;
