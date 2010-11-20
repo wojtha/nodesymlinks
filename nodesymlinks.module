@@ -216,6 +216,7 @@ function nodesymlinks_pathauto_bulkupdate() {
 function nodesymlinks_token_list($type = 'all') {
   $tokens = array();
   if ($type == 'nodesymlinks' || $type == 'all') {
+    $tokens['nodesymlinks']['nodesymlinks-nodepath']           = t("The URL path of the node the nodesymlink belongs to.");
     $tokens['nodesymlinks']['nodesymlinks-menu']                = t("The name of the menu the node belongs to.");
     $tokens['nodesymlinks']['nodesymlinks-menu-raw']            = t("The name of the menu the node belongs to.");
     $tokens['nodesymlinks']['nodesymlinks-menupath']            = t("The menu path (as reflected in the breadcrumb), not including Home or [menu]. Separated by /.");
@@ -253,6 +254,7 @@ function nodesymlinks_token_values($type, $object = NULL, $options = array()) {
           $trail[] = check_plain($title);
         }
 
+        $values['nodesymlinks-nodepath'] = ! empty($node->path) ? $node->path : 'node/'. $node->nid;
         $values['nodesymlinks-menupath'] = ! empty($options['pathauto']) ? $trail : implode('/', $trail);
         $values['nodesymlinks-menupath-raw'] = ! empty($options['pathauto']) ? $trail_raw : implode('/', $trail_raw);
         $values['nodesymlinks-menu'] = check_plain($menu);
