@@ -331,7 +331,9 @@ function nodesymlinks_nodeapi(&$node, $op) {
  * Implementation of hook_form_alter(). Adds nodesymlinks item fields to the node form.
  */
 function nodesymlinks_form_alter(&$form, $form_state, $form_id) {
-  if (isset($form['#node']) && $form['#node']->type . '_node_form' == $form_id) {
+  // Check for node form and also check if 'menu' exists - some modules like Menuless Nodetype
+  // or Content Type Menu are able to unset menu at certain node types.
+  if (isset($form['#node']) && ($form['#node']->type . '_node_form' == $form_id) && isset($form['menu'])) {
     _nodesymlinks_include();
     _nodesymlinks_form_alter($form, $form_state, $form_id);
   }
