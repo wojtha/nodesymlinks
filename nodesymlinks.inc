@@ -350,7 +350,7 @@ function _nodesymlinks_form_alter(&$form, $form_state, $form_id) {
     $nodesymlinks = (array) $node->nodesymlinks['items'];
   }
 
-  $collapsed = count($nodesymlinks) ? TRUE : FALSE;
+  $collapsed = count($nodesymlinks) ? FALSE : TRUE;
 
   $form['menu']['nodesymlinks'] = array(
     '#type' => 'fieldset',
