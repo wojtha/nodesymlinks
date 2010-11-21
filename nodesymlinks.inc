@@ -160,8 +160,9 @@ function _nodesymlinks_nodeapi_prepare_presave(&$node, $op) {
     if ($mlids) {
       while ($row = db_fetch_array($mlids)) {
         $items[$row['mlid']] = $item = menu_link_load($row['mlid']);
+        $items[$row['mlid']]['fragment'] = empty($item['options']['fragment']) ? '' : $item['options']['fragment'];
         if (module_exists('path')) {
-          $items[$row['mlid']]['alias'] = db_fetch_array(db_query("SELECT pid, dst as path FROM {url_alias} WHERE src = '%s' AND language = '%s'", $item['link_path'], $node->language));
+          $items[$row['mlid']]['alias'] = db_fetch_array(db_query("SELECT pid, dst as path FROM {url_alias} WHERE src = '%s' AND language = '%s'", $items[$row['mlid']]['link_path'], $node->language));
         }
       }
     }
@@ -317,6 +318,13 @@ function _nodesymlinks_form_field($item = NULL, $node) {
       );
     }
   }
+
+  $item_form['fragment'] = array(
+    '#type' => 'textfield',
+    '#default_value' => isset($item['fragment']) ? $item['fragment'] : '',
+    '#maxlength' => 128,
+    '#access' => user_access('create url aliases'),
+  );
 
   $item_form['weight'] = array(
     '#type' => 'weight',
@@ -602,10 +610,11 @@ function nodesymlinks_item_save(&$item, &$node) {
    * nodesymlinks.install, which exists to restore deleted menu_links during
    * module re-enable.
    */
+  $item['options']['fragment'] = empty($item['fragment']) ? '' : $item['fragment'];
   if (menu_link_save($item)) {
     // if the item is new, we need to save it second time - now with real mlid
     if ($item['is_new']) {
-      $item['link_path'] = 'node/' . $node->nid . '/mid/' . $item['mlid'];
+      $item['link_path'] = nodesymlinks_create_item_path($item, $node);
       menu_link_save($item);
     }
 
@@ -625,6 +634,7 @@ function nodesymlinks_item_save(&$item, &$node) {
     }
 
     // Creates appropriate aliases
+    $item['link_path'] = nodesymlinks_create_item_path($item, $node);
     nodesymlinks_item_alias_save(&$item, &$node);
 
     return $item['mlid'];
@@ -697,6 +707,10 @@ function theme_nodesymlinks_form_items($form) {
       $row[] = drupal_render($form[$delta]['alias']['path']);
       $path = TRUE;
     }
+    if (isset($form[$delta]['fragment'])) {
+      $row[] = drupal_render($form[$delta]['fragment']);
+      $fragment = TRUE;
+    }
     $row[] = drupal_render($form[$delta]['weight']);
     $rows[] = $row;
   }
@@ -710,6 +724,9 @@ function theme_nodesymlinks_form_items($form) {
   }
   if ($path) {
     $header[] = t('Path alias');
+  }
+  if ($fragment) {
+    $header[] = t('Fragment');
   }
   $header[] = t('Weight');
   $output .= theme('table', $header, $rows, array('id' => 'nodesymlinks-items'));
