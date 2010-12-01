@@ -691,7 +691,7 @@ function theme_nodesymlinks_form_items($form) {
   $output .= '<div id="nodesymlinks-items-ahah">';
   $items = element_children($form);
   $rows = array();
-  $path = $pathauto = FALSE;
+  $path = $pathauto = $fragment = FALSE;
 
   foreach ($items as $delta) {
     $row = array();

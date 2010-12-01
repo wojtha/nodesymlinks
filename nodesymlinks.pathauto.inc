@@ -92,7 +92,6 @@ function _nodesymlinks_pathauto_bulkupdate() {
     WHERE m.module = 'nodesymlinks' AND alias.src IS NULL";
   $result = db_query_range($query, 0, variable_get('pathauto_max_bulk_update', 50));
 
-  $placeholders = array();
   while ($nodesymlink_ref = db_fetch_object($result)) {
     $link_path = explode('/', $nodesymlink_ref->link_path);
     $nid = $link_path[1];
