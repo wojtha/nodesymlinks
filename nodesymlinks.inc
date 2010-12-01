@@ -635,7 +635,7 @@ function nodesymlinks_item_save(&$item, &$node) {
 
     // Creates appropriate aliases
     $item['link_path'] = nodesymlinks_create_item_path($item, $node);
-    nodesymlinks_item_alias_save(&$item, &$node);
+    nodesymlinks_item_alias_save($item, $node);
 
     return $item['mlid'];
   }
