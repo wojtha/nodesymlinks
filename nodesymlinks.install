@@ -32,6 +32,13 @@ function nodesymlinks_uninstall() {
 
   // Delete our schema
   drupal_uninstall_schema('nodesymlinks');
+
+  // Delete variables
+  variable_del('nodesymlinks_node_tokens');
+  variable_del('nodesymlinks_crumbs_include_home');
+  variable_del('nodesymlinks_crumbs_lastcrumb');
+  variable_del('nodesymlinks_check_menuitem');
+  variable_del('nodesymlinks_node_tokens');
 }
 
 /**
