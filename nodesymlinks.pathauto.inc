@@ -17,13 +17,22 @@ function nodesymlinks_pathauto_create_alias($item, $node, $op = 'return') {
   $language = $node->language;
   $type = $node->type;
 
-  // generate placeholders/tokens for the current nodesymlink and node
+  /**
+   * Generate placeholders for the current nodesymlink and node (optional)
+   */
   $data_object = $item;
-  $data_object['node'] = $node;
-  $node_placeholders = pathauto_get_placeholders('node', $node);
-  $placeholders = pathauto_get_placeholders('nodesymlinks', $data_object);
-  $placeholders['values'] += $node_placeholders['values'];
-  nodesymlinks_reconstruct_tokens($placeholders);
+  // merge nodesymlinks + node tokens
+  if (variable_get('nodesymlinks_node_tokens', 0)) {
+    $data_object['node'] = $node;
+    $node_placeholders = pathauto_get_placeholders('node', $node);
+    $placeholders = pathauto_get_placeholders('nodesymlinks', $data_object);
+    $placeholders['values'] += $node_placeholders['values'];
+    nodesymlinks_reconstruct_tokens($placeholders);
+  }
+  // only nodesymlinks tokens
+  else {
+    $placeholders = pathauto_get_placeholders('nodesymlinks', $data_object);
+  }
   $data =& $placeholders;
 
   if (nodesymlinks_pathauto_version() == 1) {

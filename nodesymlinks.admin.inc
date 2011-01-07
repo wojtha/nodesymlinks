@@ -100,5 +100,15 @@ function nodesymlinks_settings($form_state) {
     '#default_value' => variable_get('nodesymlinks_check_menuitem', 1),
   );
 
+  $form['pathauto'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Pathauto'
+  );
+  $form['pathauto']['nodesymlinks_node_tokens'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Access node tokens'),
+    '#default_value' => variable_get('nodesymlinks_node_tokens', 0),
+  );
+
   return system_settings_form($form);
 }

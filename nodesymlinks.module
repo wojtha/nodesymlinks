@@ -225,7 +225,11 @@ function nodesymlinks_token_list($type = 'all') {
     $tokens['nodesymlinks']['nodesymlinks-menu-link-title-raw'] = t("The unfiltered text used in the menu as link text for this item.");
     $tokens['nodesymlinks']['nodesymlinks-menu-link-mlid']      = t("The unique ID of the node's menu link.");
     $tokens['nodesymlinks']['nodesymlinks-menu-link-plid']      = t("The unique ID of the node's menu link parent.");
-    $tokens += token_get_list('node');
+
+    // Access also node tokens
+    if (variable_get('nodesymlinks_node_tokens', 0)) {
+      $tokens += token_get_list('node');
+    }
   }
   return $tokens;
 }
