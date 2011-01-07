@@ -1,11 +1,20 @@
 // $Id:$
 
+NodeSymlinks 6.x-1.0-beta4, 2011-01-07
+------------------------------------
+#993650 by djac: Fixing HTTP 403 error for users with administer menu but without administer symlinks permission
+#661490 by wojtha: Check if form[menu] exists before injecting our stuff
+#986644 by wojtha: Fixing call-time pass-by-reference bug brakes AHAH requests when error reporting is set to strict
+Delete nodesymlinks variables during unistall
+Node tokens are now optional
+Adding URL fragment support
+
 NodeSymlinks 6.x-1.0-beta3, 2010-11-21
 ------------------------------------
-  Adding full support for Pathauto and Path module - you can create custom aliases per nodesymlink. Yeah!
-  Adding configurable optional validation check if primary node menu item exists before creating new nodesymlink.
-  #974684 by wojtha: Adding new token [nodesymlinks-nodepath] for creating aliases based on node path alias.
-  #974684 by wojtha: Fixing broken Pathauto 1.x bulk update.
+Adding full support for Pathauto and Path module - you can create custom aliases per nodesymlink. Yeah!
+Adding configurable optional validation check if primary node menu item exists before creating new nodesymlink.
+#974684 by wojtha: Adding new token [nodesymlinks-nodepath] for creating aliases based on node path alias.
+#974684 by wojtha: Fixing broken Pathauto 1.x bulk update.
 
 NodeSymlinks 6.x-1.0-beta2, 2010-11-13
 ------------------------------------
