@@ -363,7 +363,8 @@ function _nodesymlinks_form_alter(&$form, $form_state, $form_id) {
   $form['menu']['nodesymlinks'] = array(
     '#type' => 'fieldset',
     '#title' => t('Show in More Locations'),
-    '#access' => user_access('administer menu') || user_access('administer nodesymlinks'),
+    // TODO: check in hook_requirements that user roles with 'administer nodesymlinks' has also 'administer menu' permission
+    '#access' => user_access('administer menu') && user_access('administer nodesymlinks'),
     '#collapsible' => TRUE,
     '#collapsed' => $collapsed,
     '#tree' => TRUE,
