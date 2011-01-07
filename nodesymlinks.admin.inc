@@ -102,13 +102,20 @@ function nodesymlinks_settings($form_state) {
 
   $form['pathauto'] = array(
     '#type' => 'fieldset',
-    '#title' => 'Pathauto'
+    '#title' => 'Pathauto',
+    '#description' => t('These settings will be visible only when <a href="@url-project">@module</a> module is enabled on the <a href="@url-modules">Modules</a> page.', array('@module' => 'Pathauto', '@url-project' => 'http://drupal.org/project/pathauto', '@url-modules' => url('admin/build/modules'))),
   );
-  $form['pathauto']['nodesymlinks_node_tokens'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Access node tokens'),
-    '#default_value' => variable_get('nodesymlinks_node_tokens', 0),
-  );
+  if (module_exists('pathauto')) {
+    _nodesymlinks_include('pathauto');
+    $pathauto_url = (nodesymlinks_pathauto_version() > 1) ? 'admin/build/path/patterns' : 'admin/build/path/pathauto';
+
+    $form['pathauto']['nodesymlinks_node_tokens'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Use node tokens'),
+      '#default_value' => variable_get('nodesymlinks_node_tokens', 0),
+      '#description' => t('When enabled, it allows you to use the <em>node tokens</em> inside the nodesymlinks pathauto pattern. However it will consume slightly more resources and you will get <strong>Duplicate tokens error</strong> on the <a href="@url-status">Status report</a> page. So enable this only when you really need it.', array('@url-pattern' => url($pathauto_url), '@url-status' => url('admin/reports/status'))),
+    );
+  }
 
   return system_settings_form($form);
 }
