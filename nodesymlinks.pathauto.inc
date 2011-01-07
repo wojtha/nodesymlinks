@@ -2,7 +2,7 @@
 // $Id$
 
 /**
- * Function for creating aliases using Pathaouto API
+ * Function for creating aliases using Pathauto API
  *
  * @param array $item
  * @param object $node

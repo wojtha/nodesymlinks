@@ -6,7 +6,7 @@
  * Node Symlinks allows creating duplicate menu links with unique id to all
  * nodes. As a result all these duplicates have unique menu trails and breadcrumbs.
  *
- * @author Vojtech Kusy wojtha@gmail.com
+ * @author Vojtech Kusy <wojtha@gmail.com>, http://vojtechkusy.com
  *
  * Google answer about duplicates
  * http://www.google.com/support/webmasters/bin/answer.py?hl=en&answer=66359
