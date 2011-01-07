@@ -227,7 +227,7 @@ function nodesymlinks_token_list($type = 'all') {
     $tokens['nodesymlinks']['nodesymlinks-menu-link-plid']      = t("The unique ID of the node's menu link parent.");
 
     // Access also node tokens
-    if (variable_get('nodesymlinks_node_tokens', 0)) {
+    if (variable_get('nodesymlinks_node_tokens', 0) && $type == 'nodesymlinks') {
       $tokens += token_get_list('node');
     }
   }

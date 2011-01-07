@@ -1,5 +1,9 @@
 // $Id:$
 
+NodeSymlinks 6.x-1.0-beta5, 2011-01-07
+------------------------------------
+#978772 by wojtha: Fixed duplicate tokens error message on the Status Report
+
 NodeSymlinks 6.x-1.0-beta4, 2011-01-07
 ------------------------------------
 #993650 by djac: Fixing HTTP 403 error for users with administer menu but without administer symlinks permission
