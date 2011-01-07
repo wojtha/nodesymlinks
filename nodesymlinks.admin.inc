@@ -113,7 +113,7 @@ function nodesymlinks_settings($form_state) {
       '#type' => 'checkbox',
       '#title' => t('Use node tokens'),
       '#default_value' => variable_get('nodesymlinks_node_tokens', 0),
-      '#description' => t('When enabled, it allows you to use the <em>node tokens</em> inside the nodesymlinks pathauto pattern. However it will consume slightly more resources and you will get <strong>Duplicate tokens error</strong> on the <a href="@url-status">Status report</a> page. So enable this only when you really need it.', array('@url-pattern' => url($pathauto_url), '@url-status' => url('admin/reports/status'))),
+      '#description' => t('When enabled, it allows you to use the <em>node tokens</em> inside the <a href="@url-pattern">nodesymlinks pathauto pattern</a>. However it will consume slightly more resources and you will get <strong>Duplicate tokens error</strong> on the <a href="@url-status">Status report</a> page. So enable this only when you really need it.', array('@url-pattern' => url($pathauto_url), '@url-status' => url('admin/reports/status'))),
     );
   }
 
